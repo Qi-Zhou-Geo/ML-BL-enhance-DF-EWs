@@ -23,3 +23,24 @@ This data is stored in <br>
 2 stations (WD01, WD02) and 3 components (BHE, BHN, BHZ)
 /storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/Luding/
 *WD01 data is ready, WD02 may need to change*
+
+### 3, 2022 Ergou data
+2 stations (EG01, EG02) and 3 components (BHE, BHN, BHZ)
+/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/2022/ErGou/
+*Ready*
+
+### 4, 2023 Dongchuan
+3 stations (FT01, FT02) and 3 components (BHE, BHN, BHZ)
+/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/2023/Dongchuan/
+*Ready*
+
+### 5, 2022 Fotangbagou data
+2 stations (FT01, FT02) and 3 components (BHE, BHN, BHZ)
+/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/2022/ErGou/
+*NOT Ready*
+
+### 6, 2022 Goulinping
+1 station and 1 component
+/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/2022/Goulinping/
+*NOT ready*
+
