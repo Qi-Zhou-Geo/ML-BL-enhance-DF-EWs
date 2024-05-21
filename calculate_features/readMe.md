@@ -5,7 +5,7 @@ or five sets (Benford's Law, waveform, spectrum, spectrogram, and network sets) 
 # How to run this code?
 ## 1, Change the path for
 
-### 1.1 In [点击这里查看Python文件](1cal_TypeA_TypeB.py)
+### 1.1 In [1cal_TypeA_TypeB.py](1cal_TypeA_TypeB.py)
 ```python
 if platform.system() == "Darwin": # your local PC name
     sys.path.append('/Users/qizhou/#python/functions/')
