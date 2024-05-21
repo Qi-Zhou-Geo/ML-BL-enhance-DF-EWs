@@ -11,13 +11,21 @@ Make sure your seismic data are stored as the following structure <br>
 ### 1.2 Link you seismic data
 Change the file name in [1cal_TypeA_TypeB.py](1cal_TypeA_TypeB.py)
 ```python
-if platform.system() == "Darwin": # your local PC name
-    sys.path.append('/Users/qizhou/#python/functions/')
-elif platform.system() == "Linux":  # your remote server name
-    sys.path.append('/storage/vast-gfz-hpc-01/home/qizhou/2python/functions/')
+    if year in [2013, 2014]:  # 2013-2014 data
+        OUTPUT_DIR, SAC_DIR = set_in_out_path(input_year, input_station, input_component, input_window_size)
+        SPS = 200
+        RULER = 1e3
+        miniSEED = f"GM.{input_station}.{input_component}.{input_year}"
+    elif year not in [2013, 2014]:  # 2017-2020 data
+        OUTPUT_DIR, SAC_DIR = set_in_out_path(year, input_station, input_component, input_window_size)
+        SPS = 100
+        RULER = 1e2
+        miniSEED = f"9S.{input_station}.{input_component}.{input_year}"
+    else:
+        print("error in OUTPUT_DIR, SAC_DIR = set_in_out_path")
 ```
 
-## 1, Change the path for
+## 2, Change the input and out path for
 
 ### 1.1 In [1cal_TypeA_TypeB.py](1cal_TypeA_TypeB.py)
 ```python
