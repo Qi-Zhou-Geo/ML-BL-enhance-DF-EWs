@@ -1,4 +1,5 @@
 # Seismic feature calculation workflow
-Codes for “Enhancing debris flow warning via seismic feature selection and machine learning model evaluation”
+There are two types (Type A and Type B) or five sets (Benford's Law, waveform, spectrum, spectrogram, and network sets) seismic features will be calculated
 
-# tes
+# How to run this code?
+
