@@ -4,6 +4,7 @@ However, there are some data need permiserion to access from Qi Zhou.
 
 # How to access the online seismic data?
 download data from online server <br>
+[download data from online server.py](download data from online server.py) <br>
 [download data from online server.py](download data from online server.py)
 
 # How to access the internal GFZ seismic data?
