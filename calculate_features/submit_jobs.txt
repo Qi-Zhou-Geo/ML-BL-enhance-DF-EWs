@@ -1,4 +1,4 @@
-please change the job id for step2 and step3
+please change the job id 3300625 for step2 and step3
 sbatch /storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/submitStep1.sh
-sbatch --dependency=afterok:3300013 /storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/submitStep2.sh
-sbatch --dependency=afterok:3300061 /storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/submitStep3.sh
+sbatch --dependency=afterok:3300625 /storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/submitStep2.sh
+sbatch --dependency=afterok:3300811 /storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/submitStep3.sh

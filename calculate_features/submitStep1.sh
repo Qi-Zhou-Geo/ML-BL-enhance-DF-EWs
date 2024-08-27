@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -t 4-00:00:00              # time limit: (D-HH:MM:SS) 
-#SBATCH --job-name=step2017        # job name, "Qi_run"
+#SBATCH --job-name=step1        # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-132              # job array id
+#SBATCH --array=1-138              # job array id
 #SBATCH --mem-per-cpu=8G		       # Memory Request (per CPU; can use on GLIC)
 
 #SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step1/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
@@ -17,7 +17,7 @@ conda activate seismic
 # Define arrays for parameters1, parameters2, and parameters3
 parameters1=(2017)
 parameters2=("ILL08" "ILL02" "ILL03")
-parameters3=($(seq 140 183)) # 132 = （183 - 140 + 1）* 3
+parameters3=($(seq 138 183)) # 132 = (183 - 138 + 1)* 3
 
 
 # Calculate the indices for the current combination

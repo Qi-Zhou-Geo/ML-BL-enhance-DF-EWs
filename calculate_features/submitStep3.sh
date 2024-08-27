@@ -27,5 +27,5 @@ srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_featu
     --input_year 2017 \
     --input_station "$current_parameter1" \
     --input_component "EHZ" \
-    --id1 140 \
+    --id1 138 \
     --id2 183

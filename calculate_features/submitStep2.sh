@@ -3,7 +3,7 @@
 #SBATCH --job-name=step2           # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-44               # job array id
+#SBATCH --array=1-46               # job array id
 
 #SBATCH --mem-per-cpu=16G		   # Memory Request (per CPU; can use on GLIC)
 
@@ -15,7 +15,7 @@ conda activate seismic
 
 
 # Define arrays for parameter1 and parameter2
-parameter1=($(seq 140 183))
+parameter1=($(seq 138 183))
 parameter1_idx=$((SLURM_ARRAY_TASK_ID - 1))
 current_parameter1="${parameter1[$parameter1_idx]}"
 

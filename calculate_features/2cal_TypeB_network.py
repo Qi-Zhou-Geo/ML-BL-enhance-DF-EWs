@@ -224,7 +224,15 @@ def run_cal_loop(input_year, input_component, input_window_size, id1, id2, stati
 def main(input_year, input_component, input_window_size, id, station_list):  # Update the global variables with the values from command-line arguments
     print(f"Start Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
 
-    check_folder(input_year, input_component)
+    # check the folder
+    try:
+        check_folder(input_year, input_component)
+    except FileExistsError as e:
+        print(f"{input_year}, {input_component}, {input_window_size}, {id}, \n"
+              f"Exception {e}: Directory already exists, ignoring.")
+    except Exception as e:
+        print(f"{input_year}, {input_component}, {input_window_size}, {id}, \n"
+              f"Exception {e}")
 
     #map_start_julday = {2013:147, 2014:91,  2017:140, 2018:145, 2019:145, 2020:152}
     #map_end_julday   = {2013:245, 2014:273, 2017:183, 2018:250, 2019:250, 2020:250}

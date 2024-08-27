@@ -173,6 +173,9 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
     # check the folder
     try:
         check_folder(input_year, input_station, input_component)
+    except FileExistsError as e:
+        print(f"{seismic_network}, {input_year}, {input_station}, {input_component}, {input_window_size}, {id}, \n"
+              f"Exception {e}: Directory already exists, ignoring.")
     except Exception as e:
         print(f"{seismic_network, input_year, input_station, input_component, input_window_size, id}, \n"
               f"Exception {e}")
