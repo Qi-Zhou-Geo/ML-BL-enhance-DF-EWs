@@ -1,8 +1,11 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-txt')
-# re-written by Qi Zhou, Helmholtz Centre Potsdam - GFZ German Research Centre for Geosciences
-# reference to (1) Chmiel, Małgorzata et al. (2021): e2020GL090874, (2) Floriane Provost et al.(2017): 113-120.
-# <editor-fold desc="**** load the package">
+# -*- coding: UTF-8 -*-
+
+#__modification time__ = 2024-02-23
+#__author__ = Qi Zhou, Helmholtz Centre Potsdam - GFZ German Research Centre for Geosciences
+#__find me__ = qi.zhou@gfz-potsdam.de, qi.zhou.geo@gmail.com, https://github.com/Nedasd
+# Please do not distribute this code without the author's permission
+
 import os
 import argparse
 from datetime import datetime
@@ -20,12 +23,18 @@ from scipy.stats import kurtosis, skew, iqr, wasserstein_distance
 
 from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
-import matplotlib.pyplot as plt
-# </editor-fold>
+
+def check_folder(input_year, input_component):
+
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    else:
+        pass
 
 
-
-# <editor-fold desc="**2** function for calculating network features">
 def rms_network(rms1, rms2, rms3, iqr1, iqr2, iqr3):
     # rms1, rms2, rms3 is from ILL18(8.0), ILL12(2.0), ILL13(3.0)
     # iqr1, iqr2, iqr3 is from ILL18(8.0), ILL12(2.0), ILL13(3.0)
@@ -104,12 +113,11 @@ def Coher(trace1, trace2):  # cross-coherence by Gosia
     coherence_values = np.max(go)
     lagTime = np.argmax(go)
     return wd, lagTime, coherence_values
-# </editor-fold>
 
 
-def record_data_header(input_year, input_component):
+def record_data_header(input_year, input_component, julday):
 
-    feature_names = ['timeDate', 'time_stamps', 'component',
+    feature_names = ['time_window_start', 'time_stamps', 'component',
                      'id_maxRMS', 'id_minRMS',
                      'ration_maxTOminRMS', 'ration_maxTOminIQR',
                      'mean_coherenceOfNet', 'max_coherenceOfNet',
@@ -126,35 +134,34 @@ def record_data_header(input_year, input_component):
 
 
     # give features title and be careful the file name and path
-    with open(f"{OUTPUT_DIR}{input_year}_{input_component}net.txt", 'a') as file:
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+
+    with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
         np.savetxt(file, [feature_names], header='', delimiter=',', comments='', fmt='%s')
 
 
+def run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list):
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+    folder_path_npy = f"{parent_dir}/data/seismic_feature/{input_year}/"
 
-def run_cal_loop (input_year, input_component, id1, id2):
-
-    if input_year in [2013, 2014]:
-        station_l = ["IGB01", "IGB02", "IGB10"]
-    elif input_year in [2017, 2018, 2019, 2020]:
-        station_l = ["ILL18", "ILL13", "ILL12"]
-    else:
-        print("check station_l")
-
-    # write the seismic features header
-    record_data_header(input_year, input_component)
 
     for julday in range(id1, id2):  # 91 = 1st of May to 305=31 of Nov.
+        d = UTCDateTime(year=input_year, julday=julday)  # the start day, e.g.2014-07-12 00:00:00
         julday = str(julday).zfill(3)
 
+        # write the seismic features header
+        record_data_header(input_year, input_component, julday)
+
         # load data then input to cal_loop
-        np_dir = f"/home/qizhou/1projects/dataForML/out60/{input_year}/{station_l[0]}/{input_component}/"# set np_dir
-        dataILL18 = np.load(f"{np_dir}{input_year}_{station_l[0]}_{component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        np_dir = f"{folder_path_npy}{station_list[0]}/{input_component}/npy/"# set np_dir
+        dataILL18 = np.load(f"{np_dir}{input_year}_{station_list[0]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
-        np_dir = f"/home/qizhou/1projects/dataForML/out60/{input_year}/{station_l[1]}/{input_component}/"# set np_dir
-        dataILL12 = np.load(f"{np_dir}{input_year}_{station_l[1]}_{component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        np_dir = f"{folder_path_npy}{station_list[1]}/{input_component}/npy/"# set np_dir
+        dataILL12 = np.load(f"{np_dir}{input_year}_{station_list[1]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
-        np_dir = f"/home/qizhou/1projects/dataForML/out60/{input_year}/{station_l[2]}/{input_component}/"# set np_dir
-        dataILL13 = np.load(f"{np_dir}{input_year}_{station_l[2]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        np_dir = f"{folder_path_npy}{station_list[2]}/{input_component}/npy/"# set np_dir
+        dataILL13 = np.load(f"{np_dir}{input_year}_{station_list[2]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
         ####################################
 
@@ -171,7 +178,7 @@ def run_cal_loop (input_year, input_component, id1, id2):
         for step in range(arra_length): # if len(dataILL18) != len(dataILL12) make sure all data are same length
 
             # processed 1-min seismic data array
-            waveformILL18, waveformILL12, waveformILL13 = dataILL18[step, 3:], dataILL12[step, 3:], dataILL13[step, 3:]
+            waveformILL18, waveformILL12, waveformILL13 = dataILL18[step, :], dataILL12[step, :], dataILL13[step, :]
             rms18, rms12, rms13 = np.sqrt(np.mean(waveformILL18 ** 2)), np.sqrt(np.mean(waveformILL12 ** 2)), np.sqrt(np.mean(waveformILL13 ** 2))
             iqr18, iqr12, iqr13 = iqr(np.abs(waveformILL18)), iqr(np.abs(waveformILL12)), iqr(np.abs(waveformILL13))
             # first three RMS related network features
@@ -188,9 +195,9 @@ def run_cal_loop (input_year, input_component, id1, id2):
                 lagTime_list.append(xcorr[1])
                 coherence_list.append(np.max(xcorr[2]))  # only select the max coherence values between two stations
 
-            timeStamps, componentID = dataILL18[step, 0], dataILL18[step, 2]  # all timeStamps and component(EHZ) is same
-            timeDate = datetime.fromtimestamp(timeStamps, tz=pytz.utc)
-            timeDate = timeDate.strftime('%Y-%m-%d %H:%M:%S')
+            time_stamps = float(d + (step) * input_window_size)
+            time = datetime.fromtimestamp(time_stamps, tz=pytz.utc)
+            time = time.strftime('%Y-%m-%d %H:%M:%S')
 
             mean_coherence = np.mean(coherence_list)  # coherence related network features
             max_coherence = np.max(coherence_list)
@@ -201,36 +208,30 @@ def run_cal_loop (input_year, input_component, id1, id2):
             mean_wd = np.mean(wd_list)  # wd related network features
             std_wd = np.std(wd_list)
 
-            arr = np.array((timeDate, timeStamps, componentID,
+            arr = np.array((time, time_stamps, input_component,
                             id_max, id_min,
                             ratio_rms, ratio_iqr,
                             mean_coherence, max_coherence,
                             mean_lagTime, std_lagTime,
                             mean_wd, std_wd))
             # do not give header here ( see [feature_names] )
-            with open(f"{OUTPUT_DIR}{input_year}_{input_component}net.txt", 'a') as file:
+            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # get the parent path
+            folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+            with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
                 np.savetxt(file, arr.reshape(1, -1), header='', delimiter=',', comments='', fmt='%s')#fmt_list)
 
 
-def main(input_year, input_component, input_window_size):  # Update the global variables with the values from command-line arguments
+def main(input_year, input_component, input_window_size, id, station_list):  # Update the global variables with the values from command-line arguments
     print(f"Start Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
 
-    global SPS, OUTPUT_DIR, SAC_DIR
-    OUTPUT_DIR = "/home/qizhou/1projects/dataForML/out60/" + str(input_year) + "/"
+    check_folder(input_year, input_component)
 
-    if year in [2013, 2014]:  # 2013-2014 data
-        SPS = 200
-    elif year not in [2013, 2014]:  # 2017-2020 data
-        SPS = 100
-    else:
-        print("error in OUTPUT_DIR, SAC_DIR = set_path")
+    #map_start_julday = {2013:147, 2014:91,  2017:140, 2018:145, 2019:145, 2020:152}
+    #map_end_julday   = {2013:245, 2014:273, 2017:183, 2018:250, 2019:250, 2020:250}
+    #id1, id2 = map_start_julday.get(input_year),  map_end_julday.get(input_year)
 
-    yearMappingStart = {2013:147, 2014:91, 2017:137, 2018:135, 2019:135, 2020:149}
-    yearMappingEnd = {2013:245, 2014:273, 2017:215, 2018:255, 2019:291, 2020:275}
-    id1, id2 = yearMappingStart.get(input_year, 91),  yearMappingEnd.get(input_year, 300)
-
-    run_cal_loop (input_year, input_component, id1, id2)  # run the loop
-
+    id1, id2 = id, id + 1
+    run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list)  # run the loop
 
     print(f"End Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
 
@@ -240,7 +241,9 @@ if __name__ == "__main__":
     parser.add_argument("--input_year", type=int, default=2020, help="cal_year")
     parser.add_argument("--input_component", type=str, default="ILL12", help="check the input_station")
     parser.add_argument("--input_window_size", type=int, default=60, help="check the calculate window size")
+    parser.add_argument("--id", type=int, default=60, help="check the calculate window size")
+    parser.add_argument("--station_list", nargs='+', type=str, help="list of stations")
 
     args = parser.parse_args()
-    main(args.input_year, args.input_component, args.input_window_size)
+    main(args.input_year, args.input_component, args.input_window_size, args.id, args.station_list)
 

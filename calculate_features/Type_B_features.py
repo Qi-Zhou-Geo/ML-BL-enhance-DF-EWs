@@ -15,7 +15,6 @@ learning algorithms.
 - Output: "all_attributes" is an array of the attribute values for the input signal, ordered as detailed on lines 69-137
 """
 
-
 # <editor-fold desc="**0** detect_peaks.py">
 
 
