@@ -78,7 +78,7 @@ def check_data_storage(dataLoader, type):
 
 # <editor-fold desc="**2** define the input data">
 
-def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017-2020"):
+def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017_1-2020"):
     '''----------
     STATION: load data from which station
     featureTYPE: which types of features
@@ -113,7 +113,7 @@ def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017
     return df
 
 
-def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017-2020"):
+def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017_1-2020"):
     '''----------
     STATION: load data from which station
     -------'''
@@ -153,7 +153,7 @@ def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017-2020"):
     return df
 
 
-def load_4Features(STATION, component="EHZ", dataYear="2017-2020"):
+def load_4Features(STATION, component="EHZ", dataYear="2017_1-2020"):
     '''----------
     STATION: load data from which station
     -------'''
@@ -841,7 +841,7 @@ def runType2(featureSIZE, scalerData):
     # </editor-fold>
 
 
-    # <editor-fold desc="2017-2019 train, 2020 test data">
+    # <editor-fold desc="2017_1-2019 train, 2020 test data">
     train_model = LstmClassifier(feature_size=featureSIZE, dropout=0.25)
     train_model.to(DEVICE)
     optimizer = torch.optim.Adam(train_model.parameters(), lr=0.0001)

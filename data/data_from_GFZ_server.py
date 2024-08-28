@@ -26,8 +26,8 @@ def load_seismic_signal(data_start, data_end, station, component="EHZ", remove_s
     Load seismic signal
 
     Parameters:
-    - data_start (str): the start time to select data, e.g., 2017-04-03 12:00:00
-    - data_end (str): the start time to select data, e.g., 2017-04-03 13:00:00
+    - data_start (str): the start time to select data, e.g., 2017_1-04-03 12:00:00
+    - data_end (str): the start time to select data, e.g., 2017_1-04-03 13:00:00
     - station (str): seismic station name
     - component (str): seismic component name
     - remove_sensor_response (bool, optial): for deconvolove

@@ -180,8 +180,8 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
         print(f"{seismic_network, input_year, input_station, input_component, input_window_size, id}, \n"
               f"Exception {e}")
 
-    #map_start_julday = {2013:147, 2014:91,  2017:140, 2018:145, 2019:145, 2020:152}
-    #map_end_julday   = {2013:245, 2014:273, 2017:183, 2018:250, 2019:250, 2020:250}
+    #map_start_julday = {2013:147, 2014:91,  2017_1:140, 2018-2019:145, 2019:145, 2020:152}
+    #map_end_julday   = {2013:245, 2014:273, 2017_1:183, 2018-2019:250, 2019:250, 2020:250}
     #id1, id2 = map_start_julday.get(input_year),  map_end_julday.get(input_year)
 
     id1, id2 = id, id + 1

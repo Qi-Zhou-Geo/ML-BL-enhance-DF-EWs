@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-txt')
 # written by Qi Zhou, Helmholtz Centre Potsdam - GFZ German Research Centre for Geosciences
-# reference to (1) Chmiel, Małgorzata et al. (2021): e2020GL090874, (2) Floriane Provost et al.(2017): 113-120.
+# reference to (1) Chmiel, Małgorzata et al. (2021): e2020GL090874, (2) Floriane Provost et al.(2017_1): 113-120.
 # <editor-fold desc="**0** load the package">
 import os
 import argparse
@@ -31,7 +31,7 @@ plt.rcParams.update({'font.size': 7})  # , 'font.family': "Arial"})
 
 # <editor-fold desc="**2** define the input data">
 
-def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017-2020"):
+def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017_1-2020"):
     '''----------
     STATION: load data from which station
     featureTYPE: which types of features
@@ -68,7 +68,7 @@ def loadSingleTypeFeatures(STATION, featureTYPE, component="EHZ", dataYear="2017
     return df, inputFeaturesNames
 
 
-def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017-2020"):
+def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017_1-2020"):
     '''----------
     STATION: load data from which station
     -------'''
@@ -109,7 +109,7 @@ def load_bl_rf_Features(STATION, component="EHZ", dataYear="2017-2020"):
     return df, inputFeaturesNames
 
 
-def load_4Features(STATION, component="EHZ", dataYear="2017-2020"):
+def load_4Features(STATION, component="EHZ", dataYear="2017_1-2020"):
     '''
     ----------
     STATION: load data from which station
@@ -286,7 +286,7 @@ def regressorModel(regressor, X_train, y_train, X_test, y_test):
 # <editor-fold desc="**5** record results">
 def recordResults(PredictedLabel, PredictedProbability,
                   training_or_testing, STATION,
-                  splitID=509760, dataYear="2017-2020"):
+                  splitID=509760, dataYear="2017_1-2020"):
 
     df = pd.read_csv(f"{DATA_DIR}#{dataYear}{STATION}_observedLabels.txt", header=0, low_memory=False)
 
@@ -502,9 +502,9 @@ def runType1(STATION, featureTYPE, modelTYPE, scalerData=False):
 
     # <editor-fold desc="visualize the results">
     recordResults(y_trainPredictedLabel, y_trainPredictedProbability, "training", STATION,
-                  splitID=509760, dataYear="2017-2020")
+                  splitID=509760, dataYear="2017_1-2020")
     recordResults(y_testPredictedLabel, y_testPredictedProbability, "testing", STATION,
-                  splitID=509760, dataYear="2017-2020")
+                  splitID=509760, dataYear="2017_1-2020")
     visualizeFeatureIMP(model, inputFeaturesNames, featureTYPE)
     # </editor-fold>
 

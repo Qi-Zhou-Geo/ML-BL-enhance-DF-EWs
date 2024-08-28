@@ -1,24 +1,23 @@
 #!/bin/bash
 #SBATCH -t 4-00:00:00              # time limit: (D-HH:MM:SS) 
-#SBATCH --job-name=step1        # job name, "Qi_run"
+#SBATCH --job-name=step3           # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-138              # job array id
-#SBATCH --mem-per-cpu=8G		       # Memory Request (per CPU; can use on GLIC)
+#SBATCH --array=1-3                # job array id
 
-#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step1/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step1/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
+#SBATCH --mem-per-cpu=8G		   # Memory Request (per CPU; can use on GLIC)
+
+#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step3/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
+#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step3/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
 
 
 source /home/qizhou/miniforge3/bin/activate
 conda activate seismic
 
-
 # Define arrays for parameters1, parameters2, and parameters3
 parameters1=(2017)
 parameters2=("ILL08" "ILL02" "ILL03")
-parameters3=($(seq 138 183)) # 132 = (183 - 138 + 1)* 3
-
+parameters3=("EHZ")
 
 # Calculate the indices for the current combination
 parameters1_idx=$(( ($SLURM_ARRAY_TASK_ID - 1) / ( ${#parameters2[@]} * ${#parameters3[@]} ) % ${#parameters1[@]} + 1 ))
@@ -33,10 +32,10 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 # Print the current combination
 echo "Year: $current_parameters1, Station: $current_parameters2, Component: $current_parameters3"
 
-srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/1cal_TypeA_TypeB.py \
-    --seismic_network "9S" \
+# Run your Python script using srun with the parameters
+srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/3merge_single_julday.py \
     --input_year "$current_parameters1" \
     --input_station "$current_parameters2" \
-    --input_component "EHZ" \
-    --input_window_size 60 \
-    --id "$current_parameters3"
+    --input_component "$current_parameters3" \
+    --id1 138 \
+    --id2 183
