@@ -8,6 +8,7 @@
 import os
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -18,7 +19,7 @@ from sklearn.metrics import f1_score, confusion_matrix
 plt.rcParams.update({'font.size': 7})  # , 'font.family': "Arial"})
 
 def visualize_feature_imp(model, input_features_name,
-                          data_year, input_station, model_type, feature_type, component):
+                          input_station, model_type, feature_type, input_component):
 
     fig = plt.figure(figsize=(5.5, 3))
     ax1 = fig.add_subplot(1, 1, 1)
@@ -38,7 +39,8 @@ def visualize_feature_imp(model, input_features_name,
 
     # plot features name
     arr = np.column_stack((input_features_name, y))
-    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_featuresIMP.txt",
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_featuresIMP.txt",
                arr, fmt='%s', delimiter=',')
 
     arrSort = np.argsort(arr[:, 1])[::-1]
@@ -55,42 +57,42 @@ def visualize_feature_imp(model, input_features_name,
     plt.grid(axis='y', ls="--", lw=0.5)
     plt.legend(loc="upper right", fontsize=5)
 
-    plt.xlabel(f"Feature ID, station: {STATION}", weight='bold')
+    plt.xlabel(f"Feature ID, station: {input_station}", weight='bold')
     plt.ylabel('Features Importance', weight='bold')
 
     ax1.xaxis.set_major_locator(ticker.MultipleLocator(10))
     plt.tight_layout()
-    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_featuresIMP.png", dpi=600)
+    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_featuresIMP.png", dpi=600)
     plt.close(fig)
 
 
-def visualize_confusion_matrix(y_test, pre_y_test_label, training_or_testing,
-                               data_year, input_station, model_type, feature_type, component):
+def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_testing,
+                               input_station, model_type, feature_type, input_component):
     
-    cm_raw = confusion_matrix(y_test, pre_y_test_label)
+    cm_raw = confusion_matrix(obs_y_label, pre_obs_y_label_label)
     cm_df_raw = pd.DataFrame(cm_raw, index=["0:Non-DF", "1:DF"], columns=["0:Non-DF", "1:DF"])
 
-    cm_normalize = confusion_matrix(y_test, pre_y_test_label, normalize='true')
+    cm_normalize = confusion_matrix(obs_y_label, pre_obs_y_label_label, normalize='true')
     cm_df_normalize = pd.DataFrame(cm_normalize, index=["0:Non-DF", "1:DF"], columns=["0:Non-DF", "1:DF"])
 
-    f1 = f1_score(y_test, pre_y_test_label, average='binary', zero_division=0)
+    f1 = f1_score(obs_y_label, pre_obs_y_label_label, average='binary', zero_division=0)
 
     fig = plt.figure(figsize=(4.5, 4.5))
     sns.heatmap(cm_df_raw, xticklabels=1, yticklabels=1, annot=True, fmt='.0f', square=True, cmap="Blues", cbar=False)
 
-    plt.text(x=0.5, y=0.62, s=f"{cm_df_normalize.iloc[0, 0]:.4f}", color="black", ha="center")
-    plt.text(x=1.5, y=0.62, s=f"{cm_df_normalize.iloc[0, 1]:.4f}", color="black", ha="center")
+    plt.text(x=0.5, y=0.4, s=f"{cm_df_normalize.iloc[0, 0]:.4f}", ha='center', color="white", fontsize=6)
+    plt.text(x=1.5, y=0.4, s=f"{cm_df_normalize.iloc[0, 1]:.4f}", ha='center', color="black", fontsize=6)
 
-    plt.text(x=0.5, y=1.62, s=f"{cm_df_normalize.iloc[1, 0]:.4f}", color="black", ha="center")
-    plt.text(x=1.5, y=1.62, s=f"{cm_df_normalize.iloc[1, 1]:.4f}", color="black", ha="center")
+    plt.text(x=0.5, y=1.4, s=f"{cm_df_normalize.iloc[1, 0]:.4f}", ha='center', color="black", fontsize=6)
+    plt.text(x=1.5, y=1.4, s=f"{cm_df_normalize.iloc[1, 1]:.4f}", ha='center', color="black", fontsize=6)
 
     plt.ylabel("Actual Class", weight='bold')
-    plt.xlabel(f"Predicted Class" + "\n" + f"{training_or_testing}, {STATION}, F1={f1:.4}", weight='bold')
+    plt.xlabel(f"Predicted Class" + "\n" + f"{training_or_testing}, {input_station}, F1={f1:.4}", weight='bold')
 
     plt.tight_layout()
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
     plt.savefig(
-        f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_F1_{f1:.4f}.png",
+        f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
         dpi=600)
 
     plt.close(fig)
