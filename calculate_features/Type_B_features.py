@@ -3,7 +3,7 @@
 #__version__ = "1.0.4"
 #__license__ = "MIT"
 @authors: A.Maggi 2016 > Orignial code and porting from Matlab
-          C. Hibert after 22/05/2017 > Original code from Matlab and addition of spectrogram attributes and other stuffs + comments
+          C. Hibert after 22/05/2017_1 > Original code from Matlab and addition of spectrogram attributes and other stuffs + comments
 This function computes the attributes of a seismic signal later used to perform identification through machine
 learning algorithms.
 - Example: from ComputeAttributes_CH_V1 import calculate_all_attributes
@@ -400,8 +400,8 @@ def get_CorrStuff(Data,sps):
 def get_freq_band_stuff(Data, sps):
     NyF = sps / 2
 
-    FFI = np.array([1, 4, 3,  12, 15 ]) # lower bounds of the different tested freq. bands
-    FFE = np.array([5, 9, 12, 20, 25])  # higher bounds of the different tested freq. bands
+    FFI = np.array([1, 5,  15, 25, 35]) # lower bounds of the different tested freq. bands
+    FFE = np.array([5, 15, 25, 35, 45])  # higher bounds of the different tested freq. bands
 
     nf = len(FFI)
 
