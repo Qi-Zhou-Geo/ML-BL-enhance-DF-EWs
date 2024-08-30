@@ -17,7 +17,7 @@ global SAC_PATH
 if platform.system() == "Darwin": # your local PC name
     SAC_PATH = "/Volumes/Section_4.7/0data/"
 elif platform.system() == "Linux":  # your remote server name
-    SAC_PATH = "/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/"
+    SAC_PATH = "/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/EU/Illgraben/"
 
         
 
@@ -48,12 +48,12 @@ def load_seismic_signal(data_start, data_end, station, component="EHZ", remove_s
 
 
     if d1.julday == d2.julday:
-        data_name = f"{seismic_network}.{station}.{component}.{d1.year}.{str(d1.julday).zfill(3)}"
+        data_name = f"{seismic_network}.{station}.{component}.{d1.year}.{str(d1.julday).zfill(3)}.mseed"
         st = read(sac_dir + data_name)
     else:
         st = Stream()
         for n in np.arange(d1.julday, d2.julday+1):
-            data_name = f"{seismic_network}.{station}.{component}.{d1.year}.{str(n).zfill(3)}"
+            data_name = f"{seismic_network}.{station}.{component}.{d1.year}.{str(n).zfill(3)}.mseed"
             st += read(sac_dir + data_name)
 
 
@@ -66,7 +66,7 @@ def load_seismic_signal(data_start, data_end, station, component="EHZ", remove_s
 
 
     if remove_sensor_response is True:
-        inv = read_inventory(f"{SAC_PATH}metadata_2017-2020.xml")
+        inv = read_inventory(f"{SAC_PATH}meta_data/{seismic_network}_2017-2020.xml")
         st.remove_response(inventory=inv)
 
     return st
