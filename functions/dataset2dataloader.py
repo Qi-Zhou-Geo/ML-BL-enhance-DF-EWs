@@ -9,7 +9,6 @@
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torch.utils.data.distributed import DistributedSampler
 
 import pandas as pd
 import numpy as np
@@ -78,9 +77,9 @@ def select_features(input_station, feature_type, input_component, training_or_te
     df = df.iloc[:, selected_column]
     input_features_name = df.columns[:-3]
 
-    x, y, time_stamp_str = df.iloc[:, :-3], df.iloc[:, -1], df.iloc[:, -3]
+    x, y, time_stamp_float, time_stamp_str = df.iloc[:, :-3], df.iloc[:, -1], df.iloc[:, -2], df.iloc[:, -3]
 
-    return input_features_name, x, y, time_stamp_str
+    return input_features_name, x, y, time_stamp_float, time_stamp_str
 
 
 def input_data_normalize(X_train, X_test):
@@ -95,29 +94,18 @@ def input_data_normalize(X_train, X_test):
     return X_train, X_test
 
 
-
 def data2seq(df, seq_length):
-    '''
-    Parameters
-    ----------
-    df: data frame with features and labels
-    seq_length: sequence length
-
-    Returns
-    -------
-    '''
 
     df_array = df.values.astype('float64')  # Convert DataFrame to NumPy array
     sequences = []
 
     for i in range(len(df_array) - seq_length - 1):
-        features = df_array[i:i + seq_length, :-3]
 
-        time_stamps = df_array[i + seq_length, -3]
-        label = df_array[i + seq_length, -2]
-        probability = df_array[i + seq_length, -1]
+        features = df_array[i : i + seq_length, :-2]
+        label =    df_array[i + seq_length, -2]
+        time_stamps = df_array[i + seq_length, -1]
 
-        sequences.append((features, time_stamps, label, probability))
+        sequences.append((features, label, time_stamps))
 
     return sequences
 
@@ -131,13 +119,11 @@ class seq2dataset(Dataset):
         return len(self.sequences)
 
     def __getitem__(self, index):
-        inputFeatures, time_stamps, label, probability = self.sequences[index]
+        features, label, time_stamps = self.sequences[index]
         return dict(
-            features=torch.Tensor(inputFeatures).to(torch.float64),
-
-            timestamps=torch.tensor(time_stamps).to(torch.float64),
+            features=torch.Tensor(features),
             label=torch.tensor(label).to(torch.long),  # other type will raise error in loss function
-            pro=torch.tensor(probability).to(torch.float64)
+            timestamps=torch.tensor(time_stamps)
         )
 
 
@@ -147,16 +133,15 @@ class dataset2dataloader:
         self.data_sequences = data_sequences
         self.batch_size = batch_size
         self.training_or_testing = training_or_testing
-        self.data_dataset = seq2dataset(self.data_sequences)
+        self.dataset = seq2dataset(self.data_sequences)
 
-    def dataLoader(self):  # shuffle=False for multiple GPU
-        # num_workers=2 for node 501-502
-        if self.training_or_testing == "training":  # sampler=DistributedSampler(self.data_dataset) for multiple-gpu
-            dataLoader = DataLoader(self.data_dataset, batch_size=self.batch_size,
-                                    shuffle=True, drop_last=True, pin_memory=True, num_workers=2)  # , sampler=DistributedSampler(self.data_dataset))
-        elif self.training_or_testing == "testing":  # shuffle=False for validation and test, the num_cpu=4,  Do NOT use sampler=DistributedSampler
-            dataLoader = DataLoader(self.data_dataset, batch_size=self.batch_size,
-                                    shuffle=False, drop_last=True, pin_memory=True, num_workers=2)
-        return dataLoader
+    def dataLoader(self):
 
+        if self.training_or_testing == "training":
+            data_loader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
+        elif self.training_or_testing == "testing":
+            data_loader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        else:
+            raise ValueError("training_or_testing must be 'training' or 'testing'")
 
+        return data_loader

@@ -78,7 +78,8 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
     f1 = f1_score(obs_y_label, pre_obs_y_label_label, average='binary', zero_division=0)
 
     fig = plt.figure(figsize=(4.5, 4.5))
-    sns.heatmap(cm_df_raw, xticklabels=1, yticklabels=1, annot=True, fmt='.0f', square=True, cmap="Blues", cbar=False)
+    sns.heatmap(cm_df_raw, xticklabels=1, yticklabels=1, annot_kws={'color': 'black', 'fontsize': 6},
+                annot=True, fmt='.0f', square=True, cmap="Blues", cbar=False)
 
     plt.text(x=0.5, y=0.4, s=f"{cm_df_normalize.iloc[0, 0]:.4f}", ha='center', color="white", fontsize=6)
     plt.text(x=1.5, y=0.4, s=f"{cm_df_normalize.iloc[0, 1]:.4f}", ha='center', color="black", fontsize=6)
@@ -96,3 +97,5 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
         dpi=600)
 
     plt.close(fig)
+
+    return f1

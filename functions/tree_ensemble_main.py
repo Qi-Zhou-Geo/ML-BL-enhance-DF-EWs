@@ -25,8 +25,8 @@ def main(input_station, model_type, feature_type, input_component):
     data_normalize = True
 
     # load data
-    input_features_name, X_train, y_train, time_stamps_train = select_features(input_station, feature_type, input_component, "training")
-    input_features_name, X_test,  y_test,  time_stamps_test =  select_features(input_station, feature_type, input_component, "testing")
+    input_features_name, X_train, y_train, _, time_stamps_train = select_features(input_station, feature_type, input_component, "training")
+    input_features_name, X_test,  y_test,  _, time_stamps_test =  select_features(input_station, feature_type, input_component, "testing")
 
     if data_normalize is True:
         X_train, X_test = input_data_normalize(X_train, X_test)
