@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9dfb8998-b120-4d3b-a0a1-21db40f9de43" name="glic">
+        <fileTransfer rootFolder="/storage/vast-gfz-hpc-01/home/qizhou" accessType="SFTP" host="glic.gfz-potsdam.de" port="22" sshConfigId="35f580a5-3d72-4994-afc4-1d1f299fe32f" sshConfig="GFZ">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="60000" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
