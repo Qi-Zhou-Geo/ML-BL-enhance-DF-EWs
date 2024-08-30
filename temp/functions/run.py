@@ -13,51 +13,6 @@ from calculate_features import BL_loop
 sys.path.append("../../calculate_features/")
 from seismic_data_processing import load_seismic_signal
 
-
-# x = UTCDateTime("2018-08-05 00:00:00")
-# y = UTCDateTime("2018-08-10 00:00:00")
-# print(x, y)
-# year = x.year
-# juldays = _get_juldays(start_time= x, end_time= y)
-# print(juldays)
-# st = load_seismic_signal(data_start = x, data_end = y, station="ILL12")
-# BL_dataframe = None
-# print("Starting BL")
-# for day in sorted(juldays):
-#     print(f"Doing {day}")
-#     bl_df = BL_loop(st= st, output_dir="NA", year=year, component="EHZ", station="ILL12",
-#                     julday = int(day), ruler= 1e2, save_cal=False)
-#     if BL_dataframe is None:
-#         BL_dataframe = bl_df
-#     else:
-#         BL_dataframe = pd.concat([BL_dataframe, bl_df], axis=0).reset_index(drop=True)
-# print("Done BL")
-# data_duration, x_interval = _get_data_duration(start_time= x, end_time= y)
-# make_subplot(st, 1e2, ".", x, x, y, data_duration, x_interval, BL_dataframe, 0.95, 0.95)
-
-# index = 35
-# df = _get_user_request_df(index=index)
-# juldays = list(_get_juldays(df=df))
-# year = UTCDateTime(df['Start(UTC+0)']).year
-# x = UTCDateTime(year= year, julday = int(juldays[0]))
-# y = UTCDateTime(year= year, julday = int(juldays[-1])+1)
-# print(x, y)
-# st = load_seismic_signal(data_start = x, data_end = y, station = "ILL12")
-# BL_dataframe = None
-# print("Starting BL")
-# for day in sorted(juldays):
-#     print(f"Doing {day}")
-#     bl_df = BL_loop(st= st, output_dir="NA", year=year, component="EHZ", station="ILL12",
-#                     julday = int(day), ruler= 1e2, save_cal=False)
-#     if BL_dataframe is None:
-#         BL_dataframe = bl_df
-#     else:
-#         BL_dataframe = pd.concat([BL_dataframe, bl_df], axis=0).reset_index(drop=True)
-# print("Done BL")
-# data_duration, x_interval = _get_data_duration(start_time= x, end_time= y)
-# make_subplot(st, 1e2, ".", x, UTCDateTime(df['Start(UTC+0)']), UTCDateTime(df[' End(UTC+0)']), data_duration, x_interval, BL_dataframe, 0.95, 0.95)
-
-
 def run_cal_loop(st:Stream, year:int, ruler:int, juldays:List) -> pd.DataFrame:
     BL_dataframe = None
     print("Running Benford's Law feature calculation loop")
