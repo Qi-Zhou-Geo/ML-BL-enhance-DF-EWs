@@ -16,7 +16,7 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
 
     model = "define it"
     if model_type == "Random_Forest":
-        model = RandomForestClassifier(n_estimators=50)
+        model = RandomForestClassifier(n_estimators=800)
     elif model_type == "XGBoost":
         model = XGBClassifier(n_estimators=200)
 
@@ -37,7 +37,7 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
     joblib.dump(model, f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     # you can load the model as
-    # model = joblib.load(f"{parent_dir}/output/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+    # model = joblib.load(f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
 
     return pre_y_train_label, pre_y_train_pro, pre_y_test_label, pre_y_test_pro, model

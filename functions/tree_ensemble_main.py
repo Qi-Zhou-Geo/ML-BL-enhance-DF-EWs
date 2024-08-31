@@ -17,7 +17,7 @@ from results_achive import *
 from results_visualization import *
 from tree_ensemble_model import *
 from check_undetected_events import *
-
+from feature_imp_shap import *
 
 def main(input_station, model_type, feature_type, input_component):
     print(f"Start Job: UTC+0, {input_station, model_type, feature_type, input_component}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
@@ -45,14 +45,20 @@ def main(input_station, model_type, feature_type, input_component):
     achieve_predicted_results(time_stamps_test, y_test, pre_y_test_label, pre_y_test_pro,
                               input_station, model_type, feature_type, input_component, "testing")
 
-    # vasulize the results
+    # vasulize the confusion_matrix
     visualize_confusion_matrix(y_train, pre_y_train_label, "training",
                                input_station, model_type, feature_type, input_component)
 
     visualize_confusion_matrix(y_test, pre_y_test_label, "testing",
                                input_station, model_type, feature_type, input_component)
 
-    visualize_feature_imp(model, input_features_name,
+    # vasulize the feature importance
+    imp = model.feature_importances_
+    visualize_feature_imp("build_in", imp, input_features_name,
+                          input_station, model_type, feature_type, input_component)
+
+    imp = shap_imp(input_station, model_type, feature_type, input_component, X_train, X_test)
+    visualize_feature_imp("shap_value", imp, input_features_name,
                           input_station, model_type, feature_type, input_component)
 
     # summary the results

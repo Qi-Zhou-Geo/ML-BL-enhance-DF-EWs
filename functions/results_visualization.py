@@ -5,28 +5,53 @@
 #__author__ = Qi Zhou, Helmholtz Centre Potsdam - GFZ German Research Centre for Geosciences
 #__find me__ = qi.zhou@gfz-potsdam.de, qi.zhou.geo@gmail.com, https://github.com/Nedasd
 # Please do not distribute this code without the author's permission
+
 import os
 import pandas as pd
 import numpy as np
-from datetime import datetime
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
 
 from sklearn.metrics import f1_score, confusion_matrix
+from sklearn.preprocessing import MinMaxScaler
+
+
 
 plt.rcParams.update({'font.size': 7})  # , 'font.family': "Arial"})
 
-def visualize_feature_imp(model, input_features_name,
+def delete_png(folder_path, file_prefix):
+
+    for file_name in os.listdir(folder_path):
+        if file_name.startswith(file_prefix):
+            file = os.path.join(folder_path, file_name)
+
+            try:
+                os.remove(file)
+            except Exception as e:
+                print(f"Error {e}"
+                      f"when delete : {file}")
+
+
+def visualize_feature_imp(imp_source, imp, input_features_name,
                           input_station, model_type, feature_type, input_component):
+
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+
+    scaler = MinMaxScaler()
+
+    imp = scaler.fit_transform(imp.reshape(-1, 1)).reshape(-1)
+
+    arr = np.column_stack((input_features_name, imp))
+    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.txt",
+               arr, fmt='%s', delimiter=',')
 
     fig = plt.figure(figsize=(5.5, 3))
     ax1 = fig.add_subplot(1, 1, 1)
 
-    y = model.feature_importances_
-    # plt.plot(y, drawstyle='steps', label=feature_type.upper())
-    sns.barplot(x=np.arange(y.size), y=y, label=feature_type.upper())
+
+    sns.barplot(x=np.arange(imp.size), y=imp, label=feature_type.upper())
 
     featureIDboundary = np.array([[-0.5, 10], [11, 35], [36, 52], [53, 69], [70, 79.5]])
     for step in range(featureIDboundary.shape[0]):
@@ -38,15 +63,10 @@ def visualize_feature_imp(model, input_features_name,
                     ymin=0, ymax=1, alpha=0.2, edgecolor="None", facecolor=facecolor)
 
     # plot features name
-    arr = np.column_stack((input_features_name, y))
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_featuresIMP.txt",
-               arr, fmt='%s', delimiter=',')
-
     arrSort = np.argsort(arr[:, 1])[::-1]
     xID = [12, 22, 32, 42, 52] + [12, 22, 32, 42, 52]
-    yID = [np.nanmax(y) * 0.8, np.nanmax(y) * 0.8, np.nanmax(y) * 0.8, np.nanmax(y) * 0.8, np.nanmax(y) * 0.8,
-           np.nanmax(y) * 0.7, np.nanmax(y) * 0.7, np.nanmax(y) * 0.7, np.nanmax(y) * 0.7, np.nanmax(y) * 0.7]
+    yID = [np.nanmax(imp) * 0.8, np.nanmax(imp) * 0.8, np.nanmax(imp) * 0.8, np.nanmax(imp) * 0.8, np.nanmax(imp) * 0.8,
+           np.nanmax(imp) * 0.7, np.nanmax(imp) * 0.7, np.nanmax(imp) * 0.7, np.nanmax(imp) * 0.7, np.nanmax(imp) * 0.7]
     try:  # some feature_type may do not have 10 features
         for step in range(10):
             plt.text(x=xID[step], y=yID[step], s=f"ID{arrSort[step]}: {arr[arrSort[step], 0]}", fontsize=5)
@@ -57,18 +77,24 @@ def visualize_feature_imp(model, input_features_name,
     plt.grid(axis='y', ls="--", lw=0.5)
     plt.legend(loc="upper right", fontsize=5)
 
-    plt.xlabel(f"Feature ID, station: {input_station}", weight='bold')
+    plt.xlabel(f"Feature ID, station: {input_station}, IMP_source: {imp_source}", weight='bold')
     plt.ylabel('Features Importance', weight='bold')
 
     ax1.xaxis.set_major_locator(ticker.MultipleLocator(10))
     plt.tight_layout()
-    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_featuresIMP.png", dpi=600)
+    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.png", dpi=600)
     plt.close(fig)
 
 
 def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_testing,
                                input_station, model_type, feature_type, input_component):
-    
+
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+
+    # delete it if this file exist
+    delete_png(folder_path=f"{parent_dir}/output/figures/",
+               file_prefix=f"{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}")
+
     cm_raw = confusion_matrix(obs_y_label, pre_obs_y_label_label)
     cm_df_raw = pd.DataFrame(cm_raw, index=["0:Non-DF", "1:DF"], columns=["0:Non-DF", "1:DF"])
 
@@ -91,7 +117,6 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
     plt.xlabel(f"Predicted Class" + "\n" + f"{training_or_testing}, {input_station}, F1={f1:.4}", weight='bold')
 
     plt.tight_layout()
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
     plt.savefig(
         f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
         dpi=600)

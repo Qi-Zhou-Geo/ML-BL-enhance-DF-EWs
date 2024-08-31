@@ -145,6 +145,10 @@ class lstm_train_test:
 
         epoch_loss = loss.item()
 
+        print(f"Training at {epoch}, "
+              f"{self.input_station}, {self.model_type}, {self.feature_type}, {self.input_component}, "
+              f"epoch_loss, {epoch_loss}")
+
         # save the model if loss decrease
         if epoch_loss < self.min_loss:
             self.min_loss = epoch_loss
@@ -152,6 +156,10 @@ class lstm_train_test:
             self._save_checkpoint(epoch)
             # save train results
             self._save_output(tensor_temp, "training")
+
+            visualize_confusion_matrix(tensor_temp[:, 1].detach().cpu().numpy(),
+                                       tensor_temp[:, 2].detach().cpu().numpy(), "training",
+                                       self.input_station, self.model_type, self.feature_type, self.input_component)
 
 
     def testing(self, epoch):
@@ -191,7 +199,8 @@ class lstm_train_test:
                 visualize_confusion_matrix(tensor_temp[:, 1].detach().cpu().numpy(),
                                            tensor_temp[:, 2].detach().cpu().numpy(), "testing",
                                            self.input_station, self.model_type, self.feature_type, self.input_component)
-                print(f"Testing at {epoch}, {self.input_station}, {self.model_type}, {self.feature_type}, {self.input_component}, "
+                print(f"Testing at {epoch}, "
+                      f"{self.input_station}, {self.model_type}, {self.feature_type}, {self.input_component}, "
                       f"F1, {f1}")
 
 
@@ -201,3 +210,4 @@ class lstm_train_test:
             self.training(epoch) # train the model every epoch
             if epoch % 5 == 0: # test the model every 5 epoch
                 self.testing(epoch)
+

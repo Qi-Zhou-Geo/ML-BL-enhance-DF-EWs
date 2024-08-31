@@ -20,7 +20,7 @@ import torch.nn as nn
 
 from dataset2dataloader import *
 from lstm_model import *
-from results_achive import *
+from check_undetected_events import *
 
 
 def main(input_station, model_type, feature_type, input_component, seq_length, batch_size):
@@ -71,8 +71,17 @@ def main(input_station, model_type, feature_type, input_component, seq_length, b
                               input_component)
     trainer.activation()
 
+    # vasulize the feature importance
+    imp = shap_imp(input_station, model_type, feature_type, input_component, train_dataloader.dataLoader(), test_dataloader.dataLoader())
+    visualize_feature_imp("shap_value", imp, input_features_name,
+                          input_station, model_type, feature_type, input_component)
+
+    # summary the results
     summary_results(input_station, model_type, feature_type, input_component, "training")
     summary_results(input_station, model_type, feature_type, input_component, "testing")
+
+    print(f"End Job: UTC+0, {input_station, model_type, feature_type, input_component, seq_length, batch_size}",
+          datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
 
 
 if __name__ == "__main__":
