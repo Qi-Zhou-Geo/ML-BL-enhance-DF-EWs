@@ -62,9 +62,9 @@ def main(input_station, model_type, feature_type, input_component):
         visualize_feature_imp("build_in", imp, input_features_name,
                               input_station, model_type, feature_type, input_component)
 
-        imp = shap_imp(input_station, model_type, feature_type, input_component, X_train)
-        visualize_feature_imp("shap_value", imp, input_features_name,
-                              input_station, model_type, feature_type, input_component)
+        #imp = shap_imp(input_station, model_type, feature_type, input_component, X_train)
+        #visualize_feature_imp("shap_value", imp, input_features_name,
+                              #input_station, model_type, feature_type, input_component)
     else:
         pass
 

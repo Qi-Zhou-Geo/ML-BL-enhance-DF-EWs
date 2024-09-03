@@ -77,10 +77,11 @@ def main(input_station, model_type, feature_type, input_component, seq_length, b
 
     # vasulize the feature importance
     if feature_type == "C":
-        imp = shap_imp(input_station, model_type, feature_type, input_component, train_dataloader.dataLoader())
+        pass
+        #imp = shap_imp(input_station, model_type, feature_type, input_component, train_dataloader.dataLoader())
 
-        visualize_feature_imp("shap_value", imp, input_features_name,
-                              input_station, model_type, feature_type, input_component)
+        #visualize_feature_imp("shap_value", imp, input_features_name,
+                              #input_station, model_type, feature_type, input_component)
     else:
         pass
 

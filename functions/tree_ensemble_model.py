@@ -16,9 +16,9 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
 
     model = "define it"
     if model_type == "Random_Forest":
-        model = RandomForestClassifier(n_estimators=800)
+        model = RandomForestClassifier(n_estimators=500)
     elif model_type == "XGBoost":
-        model = XGBClassifier(n_estimators=200)
+        model = XGBClassifier(n_estimators=500, importance_type="gain")
 
     # model training
     model.fit(X_train, y_train)
