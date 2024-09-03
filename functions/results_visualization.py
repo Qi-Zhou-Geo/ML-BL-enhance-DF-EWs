@@ -44,7 +44,7 @@ def visualize_feature_imp(imp_source, imp, input_features_name,
     imp = scaler.fit_transform(imp.reshape(-1, 1)).reshape(-1)
 
     arr = np.column_stack((input_features_name, imp))
-    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.txt",
+    np.savetxt(f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.txt",
                arr, fmt='%s', delimiter=',')
 
     fig = plt.figure(figsize=(5.5, 3))
@@ -82,7 +82,7 @@ def visualize_feature_imp(imp_source, imp, input_features_name,
 
     ax1.xaxis.set_major_locator(ticker.MultipleLocator(10))
     plt.tight_layout()
-    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.png", dpi=600)
+    plt.savefig(f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.png", dpi=600)
     plt.close(fig)
 
 
@@ -92,7 +92,7 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     # delete it if this file exist
-    delete_png(folder_path=f"{parent_dir}/output/figures/",
+    delete_png(folder_path=f"{parent_dir}/output_results/figures/",
                file_prefix=f"{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}")
 
     cm_raw = confusion_matrix(obs_y_label, pre_obs_y_label_label)
@@ -118,7 +118,7 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
 
     plt.tight_layout()
     plt.savefig(
-        f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
+        f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
         dpi=600)
 
     plt.close(fig)

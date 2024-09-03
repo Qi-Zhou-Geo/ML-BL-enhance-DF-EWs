@@ -5,11 +5,11 @@
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
 #SBATCH --array=1-18               # job array id
 
-#SBATCH --mem-per-cpu=64G		       # Memory Request (per CPU; can use on GLIC)
+#SBATCH --mem-per-cpu=128G		       # Memory Request (per CPU; can use on GLIC)
 #SBATCH --begin=2023-10-20T09:00:00# job start time, if it later than NOW, job will be run immediatly.
 
-#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/functions/ensemble_logs/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/functions/ensemble_logs/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
+#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/output_results/logs/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
+#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/output_results/logs/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
 
 
 source /home/qizhou/miniforge3/bin/activate

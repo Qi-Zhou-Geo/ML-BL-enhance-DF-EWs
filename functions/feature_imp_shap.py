@@ -14,20 +14,50 @@ import numpy as np
 import joblib
 import shap
 
+import torch
+
 from results_visualization import *
 from lstm_model import *
 
+def random_select(X_train, model_type, selected_num=1000):
+    '''
+    Parameters
+    ----------
+    X_train: numpy_ndarray, or pytorch dataloader
 
-def convert_dataloader2_list(dataloader):
+    Returns:
+            background_data, new_data
+    -------
 
-    data_list = []
+    '''
+    if model_type != "LSTM":
+        data_length = X_train.shape[0]
+    else:
+        data_length = len(X_train)
 
-    for idx, batch_data in enumerate(dataloader):
-        input_data = batch_data['features']  # Shape: (batch_size, sequence_length, feature_size)
-        data_list.append(input_data)
-        #print(idx, input_data.shape)
+    np.random.seed(42)
+    selected_indices = np.random.choice(data_length, size=selected_num * 2, replace=False)
+    id1, id2 = selected_indices[:selected_num], selected_indices[selected_num:]
 
-    return torch.cat(data_list, dim=0)
+    if model_type != "LSTM":
+        background_data, new_data = X_train[id1, :], X_train[id2, :]
+    else:
+        background_data, new_data = [], []
+
+        for idx, batch_data in enumerate(X_train):
+            input = batch_data['features']
+
+            if idx in id1:
+                background_data.append(input)
+            elif idx in id2:
+                new_data.append(input)
+            else:
+                pass
+
+        background_data, new_data = torch.cat(background_data, dim=0), torch.cat(new_data, dim=0)
+
+
+    return background_data, new_data
 
 
 def shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
@@ -36,10 +66,10 @@ def shap_tree_explainer(input_station, model_type, feature_type, input_component
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     model = joblib.load(
-        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     explainer = shap.TreeExplainer(model, background_data)
-    shap_values = explainer.shap_values(new_data)
+    shap_values = explainer.shap_values(new_data, check_additivity=False)
 
     if model_type == "Random_Forest":
         # 3D (num_samples, num_features, num_classes) -> 2D (num_samples, num_features)
@@ -55,30 +85,58 @@ def shap_tree_explainer(input_station, model_type, feature_type, input_component
     return imp
 
 
-def shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
+def shap_gradient_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
 
     assert model_type == "LSTM", f"Please check the model type {model_type}"
+    device = "cpu"#torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    device = "cpu"
 
     model = lstm_classifier(feature_size=80, device=device)
     model.load_state_dict(torch.load(
-        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
-        map_location=device))
+        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        map_location="cpu"))
+    model.to(device)
     model.eval()
 
     # make sure the "background_data" and "new_data with shape "torch.Size([data_num, batch_size, feature_size])"
-    explainer = shap.GradientExplainer(model, background_data)
+    explainer = shap.GradientExplainer(model, background_data.to(device))
     # output "shap_values" shape is "torch.Size([data_num, batch_size, feature_size, 2])"
-    shap_values = explainer.shap_values(new_data)
+    shap_values = explainer.shap_values(new_data.to(device), check_additivity=False)
 
-    shap_values = np.abs(shap_values).sum(axis=(1, 3))
+    shap_values = np.abs(shap_values.detach().cpu().numpy()).sum(axis=(1, 3))
     imp = shap_values.mean(axis=0)
 
     return imp
 
 
-def shap_imp(input_station, model_type, feature_type, input_component, background_data, new_data):
+def shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
+
+    assert model_type == "LSTM", f"Please check the model type {model_type}"
+    device = "cpu"#torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
+
+    model = lstm_classifier(feature_size=80, device=device)
+    model.load_state_dict(torch.load(
+        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        map_location="cpu"))
+    model.to(device)
+    model.eval()
+
+    # make sure the "background_data" and "new_data with shape
+    # "torch.Size([data_num , batch_size, feature_size])", data_num = selected_num * batch_size
+    background_data, new_data = background_data.to(device), new_data.to(device)
+    explainer = shap.DeepExplainer(model, background_data)
+    # output "shap_values" shape is "torch.Size([data_num, batch_size, feature_size, 2])"
+    shap_values = explainer.shap_values(new_data, check_additivity=False)
+
+    shap_values = np.abs(shap_values.detach().cpu().numpy()).sum(axis=(1, 3))
+    imp = shap_values.mean(axis=0)
+
+
+    return imp
+
+
+def shap_imp(input_station, model_type, feature_type, input_component, data):
     '''
     Parameters
     ----------
@@ -86,12 +144,8 @@ def shap_imp(input_station, model_type, feature_type, input_component, backgroun
     model_type: str, ML model type
     feature_type: str, seismic feature type
     input_component: str, seismic component
-    background_data: mulitple types, like train data,
-                     data frame for "shap_tree_explainer"
-                     or list for "shap_deep_explainer"
-    new_data: mulitple types, like test data,
-              data frame for "shap_tree_explainer"
-              or list for "shap_deep_explainer"
+    data: mulitple types, same as train data,
+                     numpy_ndarray for "shap_tree_explainer", or train_dataloader.dataLoader() for shap_deep_explainer
 
     Returns
             imp: 1D numpy.ndarray with shape feature_size (Type C feature is 80) or x (other type)
@@ -100,11 +154,11 @@ def shap_imp(input_station, model_type, feature_type, input_component, backgroun
     '''
 
     if model_type == "Random_Forest" or model_type == "XGBoost":
+        background_data, new_data = random_select(data, model_type)
         imp = shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data)
     elif model_type == "LSTM":
         # make sure the "background_data" and "new_data with shape "torch.Size([data_num, batch_size, feature_size])"
-        background_data = convert_dataloader2_list(background_data)
-        new_data = convert_dataloader2_list(new_data)
+        background_data, new_data = random_select(data, model_type)
         imp = shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data)
 
     return imp

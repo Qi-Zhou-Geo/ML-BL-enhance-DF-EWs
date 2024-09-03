@@ -52,18 +52,21 @@ def main(input_station, model_type, feature_type, input_component):
     visualize_confusion_matrix(y_test, pre_y_test_label, "testing",
                                input_station, model_type, feature_type, input_component)
 
-    # vasulize the feature importance
-    imp = model.feature_importances_
-    visualize_feature_imp("build_in", imp, input_features_name,
-                          input_station, model_type, feature_type, input_component)
-
-    imp = shap_imp(input_station, model_type, feature_type, input_component, X_train, X_test)
-    visualize_feature_imp("shap_value", imp, input_features_name,
-                          input_station, model_type, feature_type, input_component)
-
     # summary the results
     summary_results(input_station, model_type, feature_type, input_component, "training")
     summary_results(input_station, model_type, feature_type, input_component, "testing")
+
+    # vasulize the feature importance
+    if feature_type == "C":
+        imp = model.feature_importances_
+        visualize_feature_imp("build_in", imp, input_features_name,
+                              input_station, model_type, feature_type, input_component)
+
+        imp = shap_imp(input_station, model_type, feature_type, input_component, X_train)
+        visualize_feature_imp("shap_value", imp, input_features_name,
+                              input_station, model_type, feature_type, input_component)
+    else:
+        pass
 
     print(f"End Job: UTC+0, {input_station, model_type, feature_type, input_component}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
 

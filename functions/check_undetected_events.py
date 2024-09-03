@@ -36,7 +36,7 @@ def summary_results(input_station, model_type, feature_type, input_component, tr
     folder_path = f"{parent_dir}/create_labels/"
     df1 = pd.read_csv(f"{folder_path}2017-2020_DF.txt", header=0, usecols=usecols, skiprows=skiprows, nrows=nrows)
 
-    folder_path = f"{parent_dir}/output/predicted_results/"
+    folder_path = f"{parent_dir}/output_results/predicted_results/"
     df0 = pd.read_csv(f"{folder_path}{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt", header=0)
 
     date = np.array(df0.iloc[:, 0])
@@ -66,7 +66,7 @@ def summary_results(input_station, model_type, feature_type, input_component, tr
     f1 = f1_score(obs_y_label, pre_y_label, average='binary', zero_division=0)
 
 
-    f = open(f"{parent_dir}/output/summary.txt", 'a')
+    f = open(f"{parent_dir}/output_results/summary.txt", 'a')
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     record = f"UTC+0, {now}, " \
              f"{input_station}, {model_type}, {feature_type}, {training_or_testing}, {input_component}, " \
