@@ -10,7 +10,7 @@ import os
 import pandas as pd
 import numpy as np
 from obspy.core import UTCDateTime # default is UTC+0 time zone
-
+from datetime import datetime
 
 def write_down_warning(model_type, feature_type, input_component, warning_type, record):
     f = open(f"./output_results/{model_type}_{feature_type}_{input_component}_{warning_type}.txt", 'a')
@@ -65,9 +65,10 @@ def warning_controller(pro_arr, pro_threshold, warning_threshold):
 
 
 def calculate_increased_time(date_str):
+    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
 
-    df2 = pd.read_csv(f"./2020_CD29time.txt", header=None)
-    warning_time_list = np.array(df2).reshape(-1)
+    df = pd.read_csv(f"{parent_dir}/plotting/network_warning/2020_CD29time.txt", header=None)
+    warning_time_list = np.array(df).reshape(-1)
 
     arr = []
     t1 = UTCDateTime(date_str)
@@ -85,6 +86,7 @@ def calculate_increased_time(date_str):
 
 def warning(pro_threshold, warning_threshold, attention_window_size, input_station_list,
             model_type, feature_type, input_component):
+    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
 
     df = merge_multi_detection(input_station_list, model_type, feature_type, input_component)
 
@@ -129,19 +131,20 @@ def warning(pro_threshold, warning_threshold, attention_window_size, input_stati
     df1.loc[:, "warning_status"] = warning_status
     df1.loc[:, "increased_warning_time"] = increased_warning_time
     df1.loc[:, "warning_ref_cd29"] = warning_ref_cd29
-    df1.to_csv(f"./output_results/{model_type}_{feature_type}_{input_component}_warning_"
+    df1.to_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
                f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", sep=',', index=False, mode='w')
 
 
 def warning_summary(pro_threshold, warning_threshold, attention_window_size,
                     model_type, feature_type, input_component):
+    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
 
-    df1 = pd.read_csv(f"./output_results/{model_type}_{feature_type}_{input_component}_warning_"
-               f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", header=0)
+    df1 = pd.read_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
+                      f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", header=0)
     df1['increased_warning_time'] = df1['increased_warning_time'].replace(to_replace=['noise', 'false_warning'], value=0)
     date = np.array(df1.iloc[:, 0])
 
-    df2 = pd.read_csv(f"./2020_testing_events.txt", header=None)
+    df2 = pd.read_csv(f"{parent_dir}/plotting/network_warning/2020_testing_events.txt", header=None)
 
     temp = []
 
@@ -156,17 +159,30 @@ def warning_summary(pro_threshold, warning_threshold, attention_window_size,
             temp.append(0)
 
     record = [model_type, feature_type, input_component,
-              pro_threshold, warning_threshold, attention_window_size,
+              pro_threshold, warning_threshold, attention_window_size, "increased_warning",
               np.sum(temp), np.max(temp), np.min(temp), len(temp) - np.count_nonzero(temp)]
     record.extend(list(temp))
 
-    f = open(f"warning_summary.txt", 'a')
+    f = open(f"{parent_dir}/plotting/network_warning/warning_summary.txt", 'a')
     f.write(str(record) + "\n")
     f.close()
 
 
-model_type, feature_type, input_component = "LSTM", "C", "EHZ"
-pro_threshold, warning_threshold, attention_window_size = 0.9, 0.3, 10
-date = warning(pro_threshold, warning_threshold, attention_window_size,
-               ["ILL18", "ILL12", "ILL13"], model_type, feature_type, input_component)
 
+for model_type in ["Random_Forest", "XGBoost", "LSTM"]:
+    for feature_type in ["A", "B", "C"]:
+        for warning_threshold in np.arange(0.1, 1.1, 0.1):
+            for attention_window_size in np.arange(1, 21, 1):
+
+                pro_threshold = 0
+                input_station_list = ["ILL18", "ILL12", "ILL13"]
+                input_component = "EHZ"
+
+                warning(pro_threshold, warning_threshold, attention_window_size,
+                        input_station_list, model_type, feature_type, input_component)
+
+                warning_summary(pro_threshold, warning_threshold, attention_window_size,
+                                model_type, feature_type, input_component)
+
+                print(f"Finish, {pro_threshold, warning_threshold, attention_window_size, model_type, feature_type, input_component}",
+                      datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
