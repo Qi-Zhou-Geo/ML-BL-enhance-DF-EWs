@@ -10,6 +10,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="share_project">
+        <serverdata>
+          <mappings>
+            <mapping local="$USER_HOME$/#SAC" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>

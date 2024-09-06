@@ -17,7 +17,7 @@ conda activate ml
 
 
 parameters1=("ILL18" "ILL12" "ILL13") # input station
-parameters2=("XGBoost" "Random_Forest") # input model
+parameters2=("Random_Forest" "XGBoost") # input model
 parameters3=("A" "B" "C") # input features
 
 

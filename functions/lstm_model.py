@@ -15,7 +15,7 @@ from results_visualization import *
 
 
 class lstm_classifier(nn.Module):
-    def __init__(self, feature_size, device, dropout=0.25, num_hidden=256, num_layers=2, output_dim=2):
+    def __init__(self, feature_size, device, dropout=0.25, num_hidden=256, num_layers=4, output_dim=2):
         super().__init__()
         self.lstm = nn.LSTM(
             input_size=feature_size,

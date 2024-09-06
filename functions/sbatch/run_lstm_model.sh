@@ -46,6 +46,6 @@ srun --gres=gpu:A100:1 python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-E
      --model_type "$current_parameters2" \
      --feature_type "$current_parameters3" \
      --input_component "EHZ" \
-     --seq_length 64 \
+     --seq_length 32 \
      --batch_size 16
 

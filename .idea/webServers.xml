@@ -9,6 +9,13 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
+      <webServer id="79570ea6-cce4-4444-bdde-323a59326e20" name="share_project">
+        <fileTransfer rootFolder="/project/seismic_data_qi" accessType="SFTP" host="glic.gfz-potsdam.de" port="22" sshConfigId="35f580a5-3d72-4994-afc4-1d1f299fe32f" sshConfig="GFZ">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="60000" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
