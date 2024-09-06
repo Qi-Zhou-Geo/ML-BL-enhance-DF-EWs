@@ -7,6 +7,7 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import argparse
 import pandas as pd
 import numpy as np
 from obspy.core import UTCDateTime # default is UTC+0 time zone
@@ -141,6 +142,9 @@ def warning_summary(pro_threshold, warning_threshold, attention_window_size,
 
     df1 = pd.read_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
                       f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", header=0)
+
+    false_warning_times = (df1.iloc[:, -2]== 'false_warning').sum()
+
     df1['increased_warning_time'] = df1['increased_warning_time'].replace(to_replace=['noise', 'false_warning'], value=0)
     date = np.array(df1.iloc[:, 0])
 
@@ -159,8 +163,8 @@ def warning_summary(pro_threshold, warning_threshold, attention_window_size,
             temp.append(0)
 
     record = [model_type, feature_type, input_component,
-              pro_threshold, warning_threshold, attention_window_size, "increased_warning",
-              np.sum(temp), np.max(temp), np.min(temp), len(temp) - np.count_nonzero(temp)]
+              pro_threshold, warning_threshold, attention_window_size, "false_warning_times", false_warning_times,
+              "increased_warning", np.sum(temp), np.max(temp), np.min(temp), len(temp) - np.count_nonzero(temp)]
     record.extend(list(temp))
 
     f = open(f"{parent_dir}/plotting/network_warning/warning_summary.txt", 'a')
@@ -168,21 +172,34 @@ def warning_summary(pro_threshold, warning_threshold, attention_window_size,
     f.close()
 
 
+def main(model_type, feature_type, input_component):
 
-for model_type in ["Random_Forest", "XGBoost", "LSTM"]:
-    for feature_type in ["A", "B", "C"]:
-        for warning_threshold in np.arange(0.1, 1.1, 0.1):
-            for attention_window_size in np.arange(1, 21, 1):
+    print(model_type, feature_type, input_component)
 
-                pro_threshold = 0
-                input_station_list = ["ILL18", "ILL12", "ILL13"]
-                input_component = "EHZ"
+    pro_threshold = 0
+    input_station_list = ["ILL18", "ILL12", "ILL13"]
 
-                warning(pro_threshold, warning_threshold, attention_window_size,
-                        input_station_list, model_type, feature_type, input_component)
+    for warning_threshold in np.arange(0.1, 1.1, 0.1):
+        for attention_window_size in np.arange(1, 21, 1):
 
-                warning_summary(pro_threshold, warning_threshold, attention_window_size,
-                                model_type, feature_type, input_component)
+            warning(pro_threshold, warning_threshold, attention_window_size,
+                    input_station_list, model_type, feature_type, input_component)
 
-                print(f"Finish, {pro_threshold, warning_threshold, attention_window_size, model_type, feature_type, input_component}",
-                      datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
+            warning_summary(pro_threshold, warning_threshold, attention_window_size,
+                            model_type, feature_type, input_component)
+
+            print(f"Finish, {pro_threshold, warning_threshold, attention_window_size, model_type, feature_type, input_component}",
+                  datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='input parameters')
+
+    parser.add_argument("--model_type", default="Random_Forest", type=str, help="model type")
+    parser.add_argument("--feature_type", default="C", type=str, help="feature type")
+    parser.add_argument("--input_component", default="EHZ", type=str, help="seismic input_component")
+
+    args = parser.parse_args()
+
+    main(args.model_type, args.feature_type, args.input_component)
+
