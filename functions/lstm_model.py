@@ -116,6 +116,7 @@ class lstm_train_test:
     def training(self, epoch):
         self.model.train()
         tensor_temp = torch.empty((0, 4)).to(self.device)
+        epoch_loss = 0
 
         for batch_data in self.train_dataloader:
             input = batch_data['features'].to(self.device)  # Shape: (batch_size, sequence_length, feature_size)
@@ -123,6 +124,7 @@ class lstm_train_test:
 
             output_logit = self.model(input)  # return the model output logits, Shape (batch_size, 2)
             loss = self.loss_func(output_logit, target)
+            epoch_loss += loss.item()
 
             # update the gredient
             self.optimizer.zero_grad()
@@ -143,7 +145,7 @@ class lstm_train_test:
                                 pre_y_pro.view(-1, 1)), dim=1)
             tensor_temp = torch.cat((tensor_temp, record), dim=0)
 
-        epoch_loss = loss.item()
+        epoch_loss /= len(self.train_dataloader)
 
         print(f"Training at {epoch}, "
               f"{self.input_station}, {self.model_type}, {self.feature_type}, {self.input_component}, "
@@ -160,6 +162,8 @@ class lstm_train_test:
             visualize_confusion_matrix(tensor_temp[:, 1].detach().cpu().numpy(),
                                        tensor_temp[:, 2].detach().cpu().numpy(), "training",
                                        self.input_station, self.model_type, self.feature_type, self.input_component)
+
+            self.testing(epoch)
 
 
     def testing(self, epoch):
@@ -208,6 +212,3 @@ class lstm_train_test:
 
         for epoch in range(num_epoch): # loop 50 times for training
             self.training(epoch) # train the model every epoch
-            if epoch % 5 == 0: # test the model every 5 epoch
-                self.testing(epoch)
-
