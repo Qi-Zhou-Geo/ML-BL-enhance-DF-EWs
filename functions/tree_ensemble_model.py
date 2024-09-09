@@ -34,10 +34,10 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
 
     # save mdoel parameters
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    joblib.dump(model, f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+    joblib.dump(model, f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     # you can load the model as
-    # model = joblib.load(f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+    # model = joblib.load(f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
 
     return pre_y_train_label, pre_y_train_pro, pre_y_test_label, pre_y_test_pro, model

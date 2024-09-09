@@ -76,10 +76,59 @@ def select_features(input_station, feature_type, input_component, training_or_te
 
     df = df.iloc[:, selected_column]
     input_features_name = df.columns[:-3]
-
+    
+    
     x, y, time_stamp_float, time_stamp_str = df.iloc[:, :-3], df.iloc[:, -1], df.iloc[:, -2], df.iloc[:, -3]
+    print(x.shape)
+    print(len(input_features_name))
 
     return input_features_name, x, y, time_stamp_float, time_stamp_str
+
+# Assume C features are input
+def select_specific_features(x, feature_names, selected_idxs):
+    """
+    Select specific features from the input data based on the given indices.
+
+    Parameters:
+    x : array-like, shape (n_samples, n_features)
+        The input data from which features need to be selected.
+    
+    feature_names : list of str
+        The list of all feature names corresponding to the columns of x.
+    
+    selected_idxs : list of int
+        The indices of the features to be selected.
+    
+    Returns:
+    x_selected : array-like, shape (n_samples, len(selected_idxs))
+        The data containing only the selected features.
+    
+    selected_feature_names : list of str
+        The names of the selected features.
+    
+    Raises:
+    IndexError: If any index in selected_idxs is out of bounds for the given feature_names or x.
+    """
+    
+    # Check that the number of features matches the length of feature_names
+    if x.shape[1] != len(feature_names):
+        raise ValueError(f"The number of features in x {x.shape[1]} does not match the length of feature_names {len(feature_names)}.")
+    
+    # Validate indices
+    for idx in selected_idxs:
+        if idx < 0 or idx >= len(feature_names):
+            raise IndexError(f"Index {idx} is out of bounds for the feature_names list with length {len(feature_names)}.")
+    
+    # Extract the selected features from x using the given indices
+    try:
+        x_selected = x.iloc[:, selected_idxs]
+    except IndexError as e:
+        raise IndexError(f"Error selecting indices {selected_idxs} from x with shape {x.shape}: {e}")
+    
+    # Extract the names of the selected features
+    selected_feature_names = [feature_names[i] for i in selected_idxs]
+    
+    return x_selected, selected_feature_names
 
 
 def input_data_normalize(X_train, X_test):

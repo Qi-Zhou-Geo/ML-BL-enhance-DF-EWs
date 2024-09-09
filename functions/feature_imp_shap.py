@@ -66,7 +66,7 @@ def shap_tree_explainer(input_station, model_type, feature_type, input_component
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     model = joblib.load(
-        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     explainer = shap.TreeExplainer(model, background_data)
     shap_values = explainer.shap_values(new_data, check_additivity=False)
@@ -93,7 +93,7 @@ def shap_gradient_explainer(input_station, model_type, feature_type, input_compo
 
     model = lstm_classifier(feature_size=80, device=device)
     model.load_state_dict(torch.load(
-        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
         map_location="cpu"))
     model.to(device)
     model.eval()
@@ -117,7 +117,7 @@ def shap_deep_explainer(input_station, model_type, feature_type, input_component
 
     model = lstm_classifier(feature_size=80, device=device)
     model.load_state_dict(torch.load(
-        f"{parent_dir}/output_results/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
         map_location="cpu"))
     model.to(device)
     model.eval()

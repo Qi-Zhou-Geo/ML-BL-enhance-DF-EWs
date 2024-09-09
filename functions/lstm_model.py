@@ -86,7 +86,7 @@ class lstm_train_test:
     def _save_checkpoint(self, epoch):
         ckp = self.model.state_dict()
 
-        path = f"{self.parent_dir}/output_results/trained_model/" \
+        path = f"{self.parent_dir}/output/trained_model/" \
                f"{self.input_station}_{self.model_type}_{self.feature_type}_{self.input_component}.pt"
 
         torch.save(ckp, path)
@@ -106,7 +106,7 @@ class lstm_train_test:
 
         save_output = np.hstack((time_stamps_string, be_saved_tensor[:, 1:])) # do not save the float time stamps
         # np.savetxt overwrite the older file if it exits
-        np.savetxt(f"{self.parent_dir}/output_results/predicted_results/"
+        np.savetxt(f"{self.parent_dir}/output/predicted_results/"
                    f"{self.input_station}_{self.model_type}_{self.feature_type}_{self.input_component}_{training_or_testing}_output.txt",
                    save_output, delimiter=',', fmt='%s', comments='',
                    header="time_window_start,obs_y_label,pre_y_label,pre_y_pro")

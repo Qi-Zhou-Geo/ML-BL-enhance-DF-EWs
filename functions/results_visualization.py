@@ -7,6 +7,7 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import json
 import pandas as pd
 import numpy as np
 
@@ -16,7 +17,6 @@ import seaborn as sns
 
 from sklearn.metrics import f1_score, confusion_matrix
 from sklearn.preprocessing import MinMaxScaler
-
 
 
 plt.rcParams.update({'font.size': 7})  # , 'font.family': "Arial"})
@@ -42,16 +42,26 @@ def visualize_feature_imp(imp_source, imp, input_features_name,
     scaler = MinMaxScaler()
 
     imp = scaler.fit_transform(imp.reshape(-1, 1)).reshape(-1)
-
     arr = np.column_stack((input_features_name, imp))
-    np.savetxt(f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.txt",
+    feature_imp_mapping = dict(zip(input_features_name, imp))
+    json_file_path = '/home/kshitkar/ML-BL-enhance-DF-EWs/functions/feature_mapping.json'
+    with open(json_file_path, 'r') as file:
+        feature_mapping = json.load(file)
+
+    np.savetxt(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.txt",
                arr, fmt='%s', delimiter=',')
+
+    # Fill in the final_mapping with the normalized importance values for features present in input_features_name
+    for feature in feature_mapping:
+        if feature in input_features_name:
+            feature_mapping[feature] = feature_imp_mapping[feature]
+        else:
+            feature_mapping[feature] = 0.0  # Set extra features to zero
 
     fig = plt.figure(figsize=(5.5, 3))
     ax1 = fig.add_subplot(1, 1, 1)
-
-
-    sns.barplot(x=np.arange(imp.size), y=imp, label=feature_type.upper())
+    imp = np.array(list(feature_mapping.values()))
+    sns.barplot(x= np.arange(len(feature_mapping)), y= imp, label=feature_type.upper())
 
     featureIDboundary = np.array([[-0.5, 10], [11, 35], [36, 52], [53, 69], [70, 79.5]])
     for step in range(featureIDboundary.shape[0]):
@@ -82,7 +92,7 @@ def visualize_feature_imp(imp_source, imp, input_features_name,
 
     ax1.xaxis.set_major_locator(ticker.MultipleLocator(10))
     plt.tight_layout()
-    plt.savefig(f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.png", dpi=600)
+    plt.savefig(f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{input_component}_{imp_source}_IMP.png", dpi=600)
     plt.close(fig)
 
 
@@ -92,7 +102,7 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     # delete it if this file exist
-    delete_png(folder_path=f"{parent_dir}/output_results/figures/",
+    delete_png(folder_path=f"{parent_dir}/output/figures/",
                file_prefix=f"{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}")
 
     cm_raw = confusion_matrix(obs_y_label, pre_obs_y_label_label)
@@ -118,7 +128,7 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
 
     plt.tight_layout()
     plt.savefig(
-        f"{parent_dir}/output_results/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
+        f"{parent_dir}/output/figures/{input_station}_{model_type}_{feature_type}_{training_or_testing}_{input_component}_F1_{f1:.4f}.png",
         dpi=600)
 
     plt.close(fig)

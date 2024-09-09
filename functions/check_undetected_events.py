@@ -36,7 +36,7 @@ def summary_results(input_station, model_type, feature_type, input_component, tr
     folder_path = f"{parent_dir}/create_labels/"
     df1 = pd.read_csv(f"{folder_path}2017-2020_DF.txt", header=0, usecols=usecols, skiprows=skiprows, nrows=nrows)
 
-    folder_path = f"{parent_dir}/output_results/predicted_results/"
+    folder_path = f"{parent_dir}/output/predicted_results/"
     df0 = pd.read_csv(f"{folder_path}{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt", header=0)
 
     date = np.array(df0.iloc[:, 0])
@@ -45,6 +45,7 @@ def summary_results(input_station, model_type, feature_type, input_component, tr
 
     failure_detected = 0
     success_detected = 0
+    detected_status = []
     detected_status = []
 
     for step in range(len(df1)):
@@ -59,22 +60,26 @@ def summary_results(input_station, model_type, feature_type, input_component, tr
         if pre_y_label_step == 0:
             failure_detected += 1
             detected_status.append(0)
+            detected_status.append(0)
             print(f"{input_station}, {model_type}, {feature_type}, {training_or_testing}, {input_component}, "
                   f"failure_detected event, {date[id1]}, {date[id2]}")
         else:
             success_detected += 1
+            detected_status.append(1)
             detected_status.append(1)
 
     cm_raw = confusion_matrix(obs_y_label, pre_y_label)
     f1 = f1_score(obs_y_label, pre_y_label, average='binary', zero_division=0)
 
 
-    f = open(f"{parent_dir}/output_results/summary_{training_or_testing}.txt", 'a')
+    f = open(f"{parent_dir}/output/summary_{training_or_testing}.txt", 'a')
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     record = f"UTC+0, {now}, " \
              f"{input_station}, {model_type}, {feature_type}, {training_or_testing}, {input_component}, " \
              f"TN, {cm_raw[0, 0]}, FP, {cm_raw[0, 1]}, " \
              f"FN, {cm_raw[1, 0]}, TP, {cm_raw[1, 1]}, F1, {f1:.4}," \
+             f"total_event, {len(df1)}, failure_detected, {failure_detected}, success_detected, {success_detected}, " \
+             f"detected_status, {detected_status}"
              f"total_event, {len(df1)}, failure_detected, {failure_detected}, success_detected, {success_detected}, " \
              f"detected_status, {detected_status}"
     f.write(str(record) + "\n")
