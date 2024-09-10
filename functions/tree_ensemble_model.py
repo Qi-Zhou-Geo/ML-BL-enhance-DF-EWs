@@ -19,7 +19,7 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
         model = RandomForestClassifier(n_estimators=500)
     elif model_type == "XGBoost":
         model = XGBClassifier(n_estimators=500, importance_type="gain")
-
+    num_feats = X_train.shape[1]
     # model training
     model.fit(X_train, y_train)
 
@@ -34,7 +34,7 @@ def ensemble_model(X_train, y_train, X_test, y_test, input_station, model_type, 
 
     # save mdoel parameters
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    joblib.dump(model, f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+    joblib.dump(model, f"{parent_dir}/output/trained_model_{num_feats}/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     # you can load the model as
     # model = joblib.load(f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")

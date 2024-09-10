@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 def achieve_predicted_results(time_stamps, obs_y_label, pre_y_label, pre_y_pro,
-                              input_station, model_type, feature_type, input_component, training_or_testing):
+                              input_station, model_type, feature_type, input_component, training_or_testing, num_feats):
 
     assert len(time_stamps) == len(obs_y_label), f"check the len(time_stamps) == len(obs_y_label)"
     assert len(time_stamps) == len(pre_y_label), f"check the len(time_stamps) == len(pre_y_label)"
@@ -34,6 +34,6 @@ def achieve_predicted_results(time_stamps, obs_y_label, pre_y_label, pre_y_pro,
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     df.to_csv(
-        f"{parent_dir}/output/predicted_results/{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt",
+        f"{parent_dir}/output/predicted_results_{num_feats}/{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt",
         index=False)
 

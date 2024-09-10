@@ -21,7 +21,8 @@ from feature_imp_shap import *
 
 def main(input_station, model_type, feature_type, input_component, idxs):
     print(f"Start Job: UTC+0, {input_station, model_type, feature_type, input_component}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
-
+    print(f"Indexes (in main): {idxs}")
+    num_idxs = len(idxs)
     data_normalize = True
 
     # load data
@@ -44,31 +45,31 @@ def main(input_station, model_type, feature_type, input_component, idxs):
 
     # achieve the results
     achieve_predicted_results(time_stamps_train, y_train, pre_y_train_label, pre_y_train_pro,
-                              input_station, model_type, feature_type, input_component, "training")
+                              input_station, model_type, feature_type, input_component, "training", num_idxs)
 
     achieve_predicted_results(time_stamps_test, y_test, pre_y_test_label, pre_y_test_pro,
-                              input_station, model_type, feature_type, input_component, "testing")
+                              input_station, model_type, feature_type, input_component, "testing", num_idxs)
 
     # vasulize the confusion_matrix
     visualize_confusion_matrix(y_train, pre_y_train_label, "training",
-                               input_station, model_type, feature_type, input_component)
+                               input_station, model_type, feature_type, input_component, num_idxs)
 
     visualize_confusion_matrix(y_test, pre_y_test_label, "testing",
-                               input_station, model_type, feature_type, input_component)
+                               input_station, model_type, feature_type, input_component, num_idxs)
 
     # summary the results
-    summary_results(input_station, model_type, feature_type, input_component, "training")
-    summary_results(input_station, model_type, feature_type, input_component, "testing")
+    summary_results(input_station, model_type, feature_type, input_component, "training", num_idxs)
+    summary_results(input_station, model_type, feature_type, input_component, "testing", num_idxs)
 
     # vasulize the feature importance
     if feature_type == "C":
         imp = model.feature_importances_
         visualize_feature_imp("build_in", imp, input_features_name,
-                              input_station, model_type, feature_type, input_component)
+                              input_station, model_type, feature_type, input_component, num_idxs)
 
-        imp = shap_imp(input_station, model_type, feature_type, input_component, X_train)
+        imp = shap_imp(input_station, model_type, feature_type, input_component, X_train, num_idxs)
         visualize_feature_imp("shap_value", imp, input_features_name,
-                              input_station, model_type, feature_type, input_component)
+                              input_station, model_type, feature_type, input_component, num_idxs)
     else:
         pass
 
@@ -84,17 +85,20 @@ if __name__ == "__main__":
     parser.add_argument("--indexes", default='', type= str, help= "list of input features")
 
     args = parser.parse_args()
-    dir_list = ['/home/kshitkar/ML-BL-enhance-DF-EWs/output/figures',
-                '/home/kshitkar/ML-BL-enhance-DF-EWs/output/trained_model',
-                '/home/kshitkar/ML-BL-enhance-DF-EWs/output/predicted_results']
+
+    print(args.indexes)
+    indexes = list(map(int, args.indexes.split(',')))
+    print(indexes)
+
+    dir_list = [f'/home/kshitkar/ML-BL-enhance-DF-EWs/output/figures_{len(indexes)}',
+                f'/home/kshitkar/ML-BL-enhance-DF-EWs/output/trained_model_{len(indexes)}',
+                f'/home/kshitkar/ML-BL-enhance-DF-EWs/output/predicted_results_{len(indexes)}']
     try:
         for output_dir in dir_list:
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
     except FileExistsError:
         pass
-    print(args.indexes)
-    indexes = list(map(int, args.indexes.split(',')))
-    print(indexes)
+    
     main(args.input_station, args.model_type, args.feature_type, args.input_component, indexes)
 

@@ -60,13 +60,13 @@ def random_select(X_train, model_type, selected_num=1000):
     return background_data, new_data
 
 
-def shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
+def shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data, num_feats):
 
     assert model_type == "Random_Forest" or model_type == "XGBoost", f"Please check the model type {model_type}"
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     model = joblib.load(
-        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
+        f"{parent_dir}/output/trained_model_{num_feats}/{input_station}_{model_type}_{feature_type}_{input_component}.pkl")
 
     explainer = shap.TreeExplainer(model, background_data)
     shap_values = explainer.shap_values(new_data, check_additivity=False)
@@ -85,7 +85,7 @@ def shap_tree_explainer(input_station, model_type, feature_type, input_component
     return imp
 
 
-def shap_gradient_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
+def shap_gradient_explainer(input_station, model_type, feature_type, input_component, background_data, new_data, num_feats):
 
     assert model_type == "LSTM", f"Please check the model type {model_type}"
     device = "cpu"#torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -93,7 +93,7 @@ def shap_gradient_explainer(input_station, model_type, feature_type, input_compo
 
     model = lstm_classifier(feature_size=80, device=device)
     model.load_state_dict(torch.load(
-        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        f"{parent_dir}/output/trained_model_{num_feats}/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
         map_location="cpu"))
     model.to(device)
     model.eval()
@@ -109,7 +109,7 @@ def shap_gradient_explainer(input_station, model_type, feature_type, input_compo
     return imp
 
 
-def shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data):
+def shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data, num_feats):
 
     assert model_type == "LSTM", f"Please check the model type {model_type}"
     device = "cpu"#torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -117,7 +117,7 @@ def shap_deep_explainer(input_station, model_type, feature_type, input_component
 
     model = lstm_classifier(feature_size=80, device=device)
     model.load_state_dict(torch.load(
-        f"{parent_dir}/output/trained_model/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
+        f"{parent_dir}/output/trained_model_{num_feats}/{input_station}_{model_type}_{feature_type}_{input_component}.pt",
         map_location="cpu"))
     model.to(device)
     model.eval()
@@ -136,7 +136,7 @@ def shap_deep_explainer(input_station, model_type, feature_type, input_component
     return imp
 
 
-def shap_imp(input_station, model_type, feature_type, input_component, data):
+def shap_imp(input_station, model_type, feature_type, input_component, data, num_feats):
     '''
     Parameters
     ----------
@@ -155,10 +155,10 @@ def shap_imp(input_station, model_type, feature_type, input_component, data):
 
     if model_type == "Random_Forest" or model_type == "XGBoost":
         background_data, new_data = random_select(data, model_type)
-        imp = shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data)
+        imp = shap_tree_explainer(input_station, model_type, feature_type, input_component, background_data, new_data, num_feats)
     elif model_type == "LSTM":
         # make sure the "background_data" and "new_data with shape "torch.Size([data_num, batch_size, feature_size])"
         background_data, new_data = random_select(data, model_type)
-        imp = shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data)
+        imp = shap_deep_explainer(input_station, model_type, feature_type, input_component, background_data, new_data, num_feats)
 
     return imp
