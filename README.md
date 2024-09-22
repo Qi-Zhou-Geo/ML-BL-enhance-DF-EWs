@@ -2,3 +2,6 @@
 Codes for “Enhancing debris flow warning via seismic feature selection and machine learning model evaluation” <br>
 [Preprint](https://doi.org/10.22541/essoar.172183990.09256095/v1), DOI: https://doi.org/10.22541/essoar.172183990.09256095/v1 <br>
 Email: qi.zhou@gfz-potsdam.de
+
+# Note (2024-10-22)
+The project has been refactored, the output was moved out of this project.
