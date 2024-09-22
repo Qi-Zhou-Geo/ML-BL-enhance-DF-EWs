@@ -66,13 +66,13 @@ def fetch_data(model_type, feature_type, data_type):
     warning_threshold = intersection_arr[:, 4]
     attention_window_size = intersection_arr[:, 5]
 
-    total_increase_warning = intersection_arr[:, 9] / 60  # original unit is second
-    mean_increase_warning = total_increase_warning / 12
-    max_increase_warning = intersection_arr[:, 10] / 60  # original unit is second
-    min_increase_warning = intersection_arr[:, 11] / 60  # original unit is second
+    total_increase_warning = intersection_arr[:, 9].astype(float) / 60  # original unit is second
+    mean_increase_warning = total_increase_warning.astype(float) / 12
+    max_increase_warning = intersection_arr[:, 10].astype(float) / 60  # original unit is second
+    min_increase_warning = intersection_arr[:, 11].astype(float) / 60  # original unit is second
 
-    failed_warning_times = intersection_arr[:, 12]
-    fasle_warning_times = intersection_arr[:, 7]
+    failed_warning_times = intersection_arr[:, 12].astype(float)
+    fasle_warning_times = intersection_arr[:, 7].astype(float)
 
     if data_type == "failed_warning":
         try:
@@ -109,59 +109,135 @@ def fetch_data(model_type, feature_type, data_type):
     return pivot_table
 
 
-def plot_network_warning(model_type, feature_type):
+def plot_network_warning1(ax0, ax1, model_type, feature_type, legend_label):
 
-    fig = plt.figure(figsize=(5.5, 3))
-    gs = gridspec.GridSpec(1, 2)
-
-    ax = plt.subplot(gs[0])
     pivot_table = fetch_data(model_type, feature_type, "failed_warning")
-    cmap, bounds, norm = create_discrate_cmap(10, 150)
-    ax = sns.heatmap(pivot_table, annot=pivot_table, cmap='Oranges', cbar=False)
+    label = np.where(pivot_table > 0, "", pivot_table.astype(int))
 
-    plt.xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
-    plt.yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
-
-    plt.xlabel(r"Attention window size $l$ (minute)")
-    plt.ylabel(r"Warning Threshold $Pr_{g}$")
-
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("bottom", size="3%", pad=0.4)
-    cbar = plt.colorbar(mappable=ax.get_children()[0], cax=cax, orientation="horizontal")
-    cbar.ax.xaxis.set_ticks_position('bottom')
-    cbar.set_label("Failured Warning Event", labelpad=6)
-
-    ax = plt.subplot(gs[1])
-    pivot_table = fetch_data(model_type, feature_type, "fasle_warning_times")
-
-    print(np.max(np.array(pivot_table)))
-    cmap = sns.color_palette('Oranges', 6)
+    cmap = sns.color_palette('Oranges', 13)
     cmap = mcolors.ListedColormap(cmap)
-    bounds = np.array([0, 5, 10, 100, 200, 1100])  # np.linspace(0, 1100, 5)
+    bounds = np.arange(0, 13)#np.array([0, 5, 10, 100, 200, 1100])  # np.linspace(0, 1100, 5)
     norm = mcolors.BoundaryNorm(bounds, cmap.N)
+    print(np.max(pivot_table))
 
-    label = np.where(pivot_table > 10, "", pivot_table.astype(int))
+    sns.heatmap(pivot_table, annot=label, cmap=cmap, norm=norm, cbar=False, fmt='', cbar_kws={"ticks": bounds}, ax=ax0)
 
-    ax = sns.heatmap(pivot_table, annot=label, cmap=cmap, norm=norm, cbar=False, fmt='', cbar_kws={"ticks": bounds})
+    ax0.set_xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
+    ax0.set_yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
 
-    plt.xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
-    plt.yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
+    if legend_label is True:
+        #plt.xlabel(r"Attention Window Size (minute)")
+        #plt.ylabel(r"Global Averaged Probability")
 
-    plt.xlabel(r"Attention window size $l$ (minute)")
-    plt.ylabel("")
-
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("bottom", size="3%", pad=0.4)
-    cbar = plt.colorbar(mappable=ax.get_children()[0], cax=cax, orientation="horizontal")
-    cbar.ax.xaxis.set_ticks_position('bottom')
-    cbar.set_label("Failured Warning Event", labelpad=6)
-
-    plt.tight_layout()
-    plt.savefig(f"{parent_dir}/plotting/network_warning/fig/{model_type}-{feature_type}.png", dpi=600)
-    plt.show()
+        divider = make_axes_locatable(ax0)
+        cax = divider.append_axes("bottom", size="10%", pad=0.5)
+        cbar = plt.colorbar(mappable=ax0.get_children()[0], cax=cax, orientation="horizontal")
+        cbar.ax.xaxis.set_ticks_position('bottom')
+        cbar.set_label("Number of Failed Warning Events", labelpad=6)
+    else:
+        pass
 
 
+    pivot_table = fetch_data(model_type, feature_type, "fasle_warning_times")
+    #label = np.where((pivot_table <= 0) | (pivot_table > 100), "", pivot_table.astype(int))
+    label = np.where(pivot_table > 0, "", pivot_table.astype(int))
 
-for model_type in ["Random_Forest", "XGBoost", "LSTM"]:
-    for feature_type in ["A", "B", "C"]:
-        plot_network_warning(model_type, feature_type)
+
+    cmap = sns.color_palette('Reds', 7)
+    cmap = mcolors.ListedColormap(cmap)
+    bounds = np.array([0, 1, 5, 10, 50, 100, 200])#np.array([0, 5, 10, 100, 200, 1100])  # np.linspace(0, 1100, 5)
+    norm = mcolors.BoundaryNorm(bounds, cmap.N)
+    print(np.max(pivot_table))
+
+    sns.heatmap(pivot_table, annot=label, cmap=cmap, norm=norm, cbar=False, fmt='', cbar_kws={"ticks": bounds}, ax=ax1)
+
+    ax1.set_xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
+    ax1.set_yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
+
+    if legend_label is True:
+        #plt.xlabel(r"Attention Window Size (minute)")
+        #plt.ylabel("")
+
+        divider = make_axes_locatable(ax1)
+        cax = divider.append_axes("bottom", size="10%", pad=0.5)
+        cbar = plt.colorbar(mappable=ax1.get_children()[0], cax=cax, orientation="horizontal")
+        cbar.ax.xaxis.set_ticks_position('bottom')
+        cbar.set_ticks([0, 1, 5, 10, 50, 100, 200])
+        cbar.set_ticklabels([0, 1, 5, 10, 50, 100, ">100"])
+        cbar.set_label("Number of False Warnings", labelpad=6)
+    else:
+        pass
+
+def plot_network_warning(ax0, ax1, model_type, feature_type, legend_label):
+
+    pivot_table = fetch_data(model_type, feature_type, "mean")
+    print(np.max(pivot_table))
+
+    sns.heatmap(pivot_table, cmap='Oranges', vmin=0, vmax=100, ax=ax0)
+
+    ax0.set_xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
+    ax0.set_yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
+
+    if legend_label is True:
+        #plt.xlabel(r"Attention Window Size (minute)")
+        #plt.ylabel(r"Global Averaged Probability")
+
+        divider = make_axes_locatable(ax0)
+        cax = divider.append_axes("bottom", size="10%", pad=0.5)
+        cbar = plt.colorbar(mappable=ax0.get_children()[0], cax=cax, orientation="horizontal")
+        cbar.ax.xaxis.set_ticks_position('bottom')
+        cbar.set_label("Number of Failed Warning Events", labelpad=6)
+    else:
+        pass
+
+
+    pivot_table = fetch_data(model_type, feature_type, "min")
+    print(np.max(pivot_table))
+
+    sns.heatmap(pivot_table, cmap='Greens', vmin=0, vmax=60, ax=ax1)
+
+    ax1.set_xticks([0.5, 4.5, 9.5, 14.5, 19.5], [1, 5, 10, 15, 20])
+    ax1.set_yticks(np.arange(0.5, 10, 1), np.round(np.arange(0.1, 1.1, 0.1), 1), horizontalalignment="right", rotation=0)
+
+    if legend_label is True:
+        #plt.xlabel(r"Attention Window Size (minute)")
+        #plt.ylabel("")
+
+        divider = make_axes_locatable(ax1)
+        cax = divider.append_axes("bottom", size="10%", pad=0.5)
+        cbar = plt.colorbar(mappable=ax1.get_children()[0], cax=cax, orientation="horizontal")
+        cbar.ax.xaxis.set_ticks_position('bottom')
+        cbar.set_ticks([0, 1, 5, 10, 50, 100, 200])
+        cbar.set_ticklabels([0, 1, 5, 10, 50, 100, ">100"])
+        cbar.set_label("Number of False Warnings", labelpad=6)
+    else:
+        pass
+
+
+feature_type = "C"
+fig = plt.figure(figsize=(4.5, 5.5))
+gs = gridspec.GridSpec(3, 2)
+
+ax0 = plt.subplot(gs[0])
+ax1 = plt.subplot(gs[1])
+ax0.set_title(f"(a) Random Forest Model with Type {feature_type}", loc='left', fontsize=6, fontweight='bold')
+plot_network_warning(ax0, ax1, "Random_Forest", feature_type, False)
+
+ax0 = plt.subplot(gs[2])
+ax1 = plt.subplot(gs[3])
+ax0.set_title(f"(b) XGBoost Model with Type {feature_type}", loc='left', fontsize=6, fontweight='bold')
+plot_network_warning(ax0, ax1, "XGBoost", feature_type, False)
+
+
+ax0 = plt.subplot(gs[4])
+ax1 = plt.subplot(gs[5])
+ax0.set_title(f"(c) LSTM Model with Type {feature_type}", loc='left', fontsize=6, fontweight='bold')
+plot_network_warning(ax0, ax1, "LSTM", feature_type, False)
+
+
+fig.text(x=0, y=0.5, s="Global Averaged Probability", fontsize=7, weight="bold", va='center', rotation='vertical')
+fig.text(x=0.4, y=0.01, s="Attention Window Size (minute)", fontsize=7, weight="bold", va='center')
+
+plt.tight_layout()
+plt.savefig(f"{parent_dir}/plotting/network_warning/fig/warning_strategy_matrix_{feature_type}_time.png", dpi=600)
+plt.show()
