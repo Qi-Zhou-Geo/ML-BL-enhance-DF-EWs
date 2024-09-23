@@ -52,8 +52,6 @@ def manually_remove_sensor_response(trace, sensor_type):
         'sensitivity': 3.0172e8
     }
 
-    
-
     if sensor_type == "trillium_compact_120s_754":
         paz = paz_trillium_compact_120s_754
     else:

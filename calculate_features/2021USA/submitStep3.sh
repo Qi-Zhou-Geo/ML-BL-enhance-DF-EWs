@@ -3,12 +3,12 @@
 #SBATCH --job-name=step3           # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-3                # job array id
+#SBATCH --array=1-2                # job array id
 
 #SBATCH --mem-per-cpu=8G		   # Memory Request (per CPU; can use on GLIC)
 
-#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step3/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/logs/step3/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
+#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step3/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
+#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step3/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
 
 
 source /home/qizhou/miniforge3/bin/activate
@@ -16,8 +16,8 @@ conda activate seismic
 
 # Define arrays for parameters1, parameters2, and parameters3
 parameters1=(2020)
-parameters2=("ILL18" "ILL12" "ILL13")
-parameters3=("EHZ")
+parameters2=("COCB" "E19A")
+parameters3=("CHZ")
 
 # Calculate the indices for the current combination
 parameters1_idx=$(( ($SLURM_ARRAY_TASK_ID - 1) / ( ${#parameters2[@]} * ${#parameters3[@]} ) % ${#parameters1[@]} + 1 ))
@@ -33,9 +33,9 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 echo "Year: $current_parameters1, Station: $current_parameters2, Component: $current_parameters3"
 
 # Run your Python script using srun with the parameters
-srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/3merge_single_julday.py \
+srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/3merge_single_julday.py \
     --input_year "$current_parameters1" \
     --input_station "$current_parameters2" \
     --input_component "$current_parameters3" \
-    --id1 152 \
-    --id2 250
+    --id1 175 \
+    --id2 238
