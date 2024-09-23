@@ -7,26 +7,34 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import torch
 from torch.utils.data import Dataset, DataLoader
 
 import pandas as pd
 import numpy as np
 
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
+
 
 def load_all_features(input_year, input_station, input_component):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 
     # BL sets
-    df1 = pd.read_csv(f"{parent_dir}/data/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt",
+    df1 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt",
                       header=0, low_memory=False, usecols=[4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 17])
 
     # waveform, spectrum, spectrogram sets
-    df2 = pd.read_csv(f"{parent_dir}/data/seismic_feature/{input_year}_{input_station}_{input_component}_all_B.txt",
+    df2 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_B.txt",
                       header=0, low_memory=False, usecols=np.arange(4, 63))
 
     # network sets
-    df3 = pd.read_csv(f"{parent_dir}/data/seismic_feature/{input_year}_{input_component}_all_network.txt",
+    df3 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_component}_all_network.txt",
                       header=0, low_memory=False, usecols=np.arange(3, 13))
 
     # time stamps, binary labels, probability of label 1(DF)
@@ -79,8 +87,6 @@ def select_features(input_station, feature_type, input_component, training_or_te
     
     
     x, y, time_stamp_float, time_stamp_str = df.iloc[:, :-3], df.iloc[:, -1], df.iloc[:, -2], df.iloc[:, -3]
-    print(x.shape)
-    print(len(input_features_name))
 
     return input_features_name, x, y, time_stamp_float, time_stamp_str
 
