@@ -7,15 +7,25 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import torch
 import torch.nn as nn
 from datetime import datetime
 
 from results_visualization import *
 
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+
+# import CONFIG_dir as a global variable
+from functions.config.config_dir import CONFIG_dir
+
 
 class lstm_classifier(nn.Module):
-    def __init__(self, feature_size, device, dropout=0.25, num_hidden=256, num_layers=4, output_dim=2):
+    def __init__(self, feature_size, device, dropout=0.25, num_hidden=512, num_layers=4, output_dim=2):
         super().__init__()
         self.lstm = nn.LSTM(
             input_size=feature_size,
@@ -47,8 +57,6 @@ class lstm_classifier(nn.Module):
         return out
 
 
-
-
 class lstm_train_test:
     def __init__(self,
                  model: torch.nn.Module,
@@ -61,6 +69,7 @@ class lstm_train_test:
                  model_type: str,
                  feature_type: str,
                  input_component: str,
+                 scheduler: torch.optim.lr_scheduler._LRScheduler
                  ) -> None:
 
         self.model = model
@@ -76,17 +85,18 @@ class lstm_train_test:
         self.min_loss = 1
         self.test_f1 = 0
 
-        self.parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # get the parent path
+        self.parent_dir = CONFIG_dir['output_dir']
 
         self.input_station = input_station
         self.model_type = model_type
         self.feature_type = feature_type
         self.input_component = input_component
+        self.scheduler = scheduler
 
     def _save_checkpoint(self, epoch):
         ckp = self.model.state_dict()
 
-        path = f"{self.parent_dir}/output/trained_model/" \
+        path = f"{self.parent_dir}/train_test_output/trained_model/" \
                f"{self.input_station}_{self.model_type}_{self.feature_type}_{self.input_component}.pt"
 
         torch.save(ckp, path)
@@ -105,8 +115,15 @@ class lstm_train_test:
 
 
         save_output = np.hstack((time_stamps_string, be_saved_tensor[:, 1:])) # do not save the float time stamps
+
         # np.savetxt overwrite the older file if it exits
-        np.savetxt(f"{self.parent_dir}/output/predicted_results/"
+        # double set the path
+        if training_or_testing == "dual_testing":
+            output_path = f"{CONFIG_dir['output_dir']}/dual_test/"
+        else:
+            output_path = f"{CONFIG_dir['output_dir']}/train_test_output/predicted_results/"
+
+        np.savetxt(f"{output_path}"
                    f"{self.input_station}_{self.model_type}_{self.feature_type}_{self.input_component}_{training_or_testing}_output.txt",
                    save_output, delimiter=',', fmt='%s', comments='',
                    header="time_window_start,obs_y_label,pre_y_label,pre_y_pro")
@@ -137,7 +154,8 @@ class lstm_train_test:
             # predicted probability of debris flow label 1, Shape (batch_size, 1)
             pre_y_label = torch.argmax(output_logit, dim=1)
             # predicted probability, Shape (batch_size, 2)
-            pre_y_pro = torch.sigmoid(output_logit)[:, 1] # selected the debris flow probability Shape (batch_size, 1)
+            pre_y_pro = torch.softmax(output_logit, dim=1)[:, 1]  # selected the debris flow probability Shape (batch_size, 1)
+
 
             record = torch.cat((time_stamps.view(-1, 1),
                                 obs_y_label.view(-1, 1),
@@ -163,11 +181,10 @@ class lstm_train_test:
                                        tensor_temp[:, 2].detach().cpu().numpy(), "training",
                                        self.input_station, self.model_type, self.feature_type, self.input_component)
 
-            self.testing(epoch)
-
 
     def testing(self, epoch):
         self.model.eval()
+        val_loss = 0
         # loop all testing data
         with torch.no_grad():
             tensor_temp = torch.empty((0, 4)).to(self.device)
@@ -177,6 +194,8 @@ class lstm_train_test:
                 target = batch_data['label'].to(self.device)  # Shape: (sequence_length, 1) 0:NoneDF, 1:DF
 
                 output_logit = self.model(input)  # return the model output logits, Shape (batch_size, 2)
+                loss = self.loss_func(output_logit, target)
+                val_loss += loss.item()
 
                 # prepare data
                 time_stamps = batch_data['timestamps'].to(self.device)
@@ -184,13 +203,16 @@ class lstm_train_test:
                 # predicted probability of debris flow label 1, Shape (batch_size, 1)
                 pre_y_label = torch.argmax(output_logit, dim=1)
                 # predicted probability, Shape (batch_size, 2)
-                pre_y_pro = torch.sigmoid(output_logit)[:, 1]  # selected the debris flow probability Shape (batch_size, 1)
+                pre_y_pro = torch.softmax(output_logit, dim=1)[:,1]  # selected the debris flow probability Shape (batch_size, 1)
+
 
                 record = torch.cat((time_stamps.view(-1, 1),
                                     obs_y_label.view(-1, 1),
                                     pre_y_label.view(-1, 1),
                                     pre_y_pro.view(-1, 1)), dim=1)
                 tensor_temp = torch.cat((tensor_temp, record), dim=0)
+
+            val_loss /= len(self.test_dataloader)
 
             f1 = f1_score(tensor_temp[:, 1].detach().cpu().numpy(),
                           tensor_temp[:, 2].detach().cpu().numpy(), average='binary', zero_division=0)
@@ -206,9 +228,53 @@ class lstm_train_test:
                 print(f"Testing at {epoch}, "
                       f"{self.input_station}, {self.model_type}, {self.feature_type}, {self.input_component}, "
                       f"F1, {f1}")
+            else:
+                print(f"Nothing saved, Testing at {epoch}, f1={f1} < self.test_f1={self.test_f1}")
+
+        return val_loss
+
+
+    def dual_testing(self):
+        self.model.eval()
+        val_loss = 0
+        # loop all testing data
+        with torch.no_grad():
+            tensor_temp = torch.empty((0, 4)).to(self.device)
+
+            for batch_data in self.test_dataloader:
+                input = batch_data['features'].to(self.device)  # Shape: (batch_size, sequence_length, feature_size)
+                target = batch_data['label'].to(self.device)  # Shape: (sequence_length, 1) 0:NoneDF, 1:DF
+
+                output_logit = self.model(input)  # return the model output logits, Shape (batch_size, 2)
+                loss = self.loss_func(output_logit, target)
+                val_loss += loss.item()
+
+                # prepare data
+                time_stamps = batch_data['timestamps'].to(self.device)
+                obs_y_label = target
+                # predicted probability of debris flow label 1, Shape (batch_size, 1)
+                pre_y_label = torch.argmax(output_logit, dim=1)
+                # predicted probability, Shape (batch_size, 2)
+                pre_y_pro = torch.softmax(output_logit, dim=1)[:,1]  # selected the debris flow probability Shape (batch_size, 1)
+
+
+                record = torch.cat((time_stamps.view(-1, 1),
+                                    obs_y_label.view(-1, 1),
+                                    pre_y_label.view(-1, 1),
+                                    pre_y_pro.view(-1, 1)), dim=1)
+                tensor_temp = torch.cat((tensor_temp, record), dim=0)
+
+            val_loss /= len(self.test_dataloader)
+
+            self._save_output(tensor_temp, "dual_testing")
 
 
     def activation(self, num_epoch=50):
 
         for epoch in range(num_epoch): # loop 50 times for training
             self.training(epoch) # train the model every epoch
+
+            val_loss = self.testing(epoch)
+
+            self.scheduler.step(val_loss)
+

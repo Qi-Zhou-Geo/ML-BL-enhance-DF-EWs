@@ -28,7 +28,7 @@ from functions.results_achive import *
 from functions.tree_ensemble_model import *
 from functions.check_undetected_events import *
 
-def main(model_type, feature_type, input_component, ref_station, ref_component, input_seis_network, input_station):
+def main(model_type, feature_type, input_component, ref_station, ref_component, input_seis_network, input_station, input_data_year):
 
     job_id = int(os.environ["SLURM_ARRAY_TASK_ID"])
     print(f"Start Job {job_id}: UTC+0, {feature_type, input_component, ref_station, input_seis_network, input_station}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "\n")
@@ -38,12 +38,10 @@ def main(model_type, feature_type, input_component, ref_station, ref_component, 
     # load 2017-2019 trainng data to fit the scaler (this is the only purpose)
     input_features_name, X_train, y_train, _, time_stamps_train = select_features(ref_station, feature_type, ref_component, "training", [2017, 2018, 2019])
     # load NEW testing data
-    _, X_test,  y_test,  _, time_stamps_test =  select_features(input_station, feature_type, input_component, "dual_testing", [2021])
+    _, X_test,  y_test,  _, time_stamps_test =  select_features(input_station, feature_type, input_component, "dual_testing", [input_data_year])
 
     if data_normalize is True:
-        from sklearn.preprocessing import MinMaxScaler
-        scaler = MinMaxScaler()
-        X_test = scaler.fit_transform(X_test)
+        X_train, X_test = input_data_normalize(X_train, X_test)
     else:
         pass
 
@@ -71,9 +69,12 @@ if __name__ == "__main__":
     # test parameter
     parser.add_argument("--input_seis_network", default="ILL12", type=str, help="input station")
     parser.add_argument("--input_station", default="ILL12", type=str, help="input station")
+    parser.add_argument("--input_data_year", default="ILL12", type=str, help="input station")
 
     args = parser.parse_args()
 
     main(args.model_type, args.feature_type, args.input_component,
-         args.ref_station, args.ref_component, args.input_seis_network, args.input_station)
+         args.ref_station, args.ref_component,
+         args.input_seis_network, args.input_station,
+         args.input_data_year)
 

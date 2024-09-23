@@ -3,7 +3,7 @@
 #SBATCH --job-name=dual_ensemble   # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-3               # job array id
+#SBATCH --array=1-6               # job array id
 
 #SBATCH --mem-per-cpu=64G		       # Memory Request (per CPU; can use on GLIC)
 #SBATCH --begin=2023-10-20T09:00:00# job start time, if it later than NOW, job will be run immediatly.
@@ -17,7 +17,7 @@ source /home/qizhou/miniforge3/bin/activate
 conda activate ml
 
 
-parameters1=("XGBoost") # input model
+parameters1=("Random_Forest" "XGBoost") # input model
 parameters2=("A" "B" "C") # input features
 parameters3=("E19A") # input station
 
@@ -41,4 +41,5 @@ srun python tree_ensemble_main_dual.py \
      --ref_station "ILL12" \
      --ref_component "EHZ" \
      --input_seis_network "1A" \
-     --input_station "$current_parameters3"
+     --input_station "$current_parameters3" \
+     --input_data_year 2021

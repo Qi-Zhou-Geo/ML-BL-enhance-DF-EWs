@@ -213,7 +213,7 @@ class dataset2dataloader:
 
         if self.training_or_testing == "training":
             data_loader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
-        elif self.training_or_testing == "testing":
+        elif self.training_or_testing == "testing" or self.training_or_testing == "dual_testing":
             data_loader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=False, drop_last=True)
         else:
             raise ValueError("training_or_testing must be 'training' or 'testing'")
