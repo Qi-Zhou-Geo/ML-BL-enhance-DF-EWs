@@ -13,6 +13,8 @@ import pandas as pd
 import numpy as np
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
 
 def create_label(input_year, input_station, input_component):
 
@@ -25,11 +27,10 @@ def create_label(input_year, input_station, input_component):
     else:
         print(f"check the input station: {input_station}")
 
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/"
     df0 = pd.read_csv(f"{folder_path}{input_year}_{input_station}_{input_component}_all_A.txt", header=0)
 
-    folder_path = f"{parent_dir}/create_labels/"
+    folder_path = f"{CONFIG_dir['parent_dir']}/data_input/manually_labeled_DF/"
     df1 = pd.read_csv(f"{folder_path}{input_year}_DF.txt", header=0, usecols=usecols)
 
     df_label = df0.iloc[:, :2]
@@ -45,7 +46,7 @@ def create_label(input_year, input_station, input_component):
 
         df_label.iloc[id1:id2, -1] = np.full(id2-id1, 1) # debris flow event with label 1
 
-    df_label.to_csv(f"{parent_dir}/data/event_label/{input_year}_{input_station}_{input_component}_observed_label.txt",index=False)
+    df_label.to_csv(f"{CONFIG_dir['output_dir']}/data_output/event_label/{input_year}_{input_station}_{input_component}_observed_label.txt",index=False)
     print(f"{input_year}_{input_station}_{input_component}, done")
 
 def main():
