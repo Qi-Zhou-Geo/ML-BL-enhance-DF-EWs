@@ -13,7 +13,7 @@ def config_dir():
     output_dir = f"{parent_dir}/output"
     sac_path_Illgraben = f"/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/EU/Illgraben/"
     sac_path_Museum = f"/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/USA/Museum_Fire/"
-    sac_path_Luding = "/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/Luding"
+    sac_path_Luding = "/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/CN/Luding/"
 
     CONFIG_dir = {
         "parent_dir": parent_dir,

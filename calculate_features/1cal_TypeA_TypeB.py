@@ -23,14 +23,15 @@ from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
 
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
 from Type_A_features import *      # import Qi's all features (by *)
 from Type_B_features import *      # import Clement's all features (by *)
 from seismic_data_processing import * # load and process the seismic signals
 
 def check_folder(input_year, input_station, input_component):
 
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}"
 
     for folder_name in ["txt", "npy"]:
         if not os.path.exists(f"{folder_path}/{folder_name}"):
@@ -53,8 +54,7 @@ def cal_attributes_A(data_array, ruler=300): # the main function is from Qi
 
 
 def record_data_header(input_year, input_station, input_component, julday):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
 
     featureName1 = ['time_window_start', 'time_stamps', 'station', 'component',
                     'RappMaxMean', 'RappMaxMedian', 'AsDec', 'KurtoSig','KurtoEnv', 'SkewnessSig','SkewnessEnv',
@@ -80,8 +80,7 @@ def record_data_header(input_year, input_station, input_component, julday):
 
 
 def record_data(input_year, input_station, input_component, arr, feature_type, julday):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
 
     arr = arr.reshape(1, -1)
     # seismic features to be saved
@@ -132,8 +131,7 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
         seismic_array = np.vstack((seismic_array, seismic_data))
 
     # save the npy every julday
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}/npy/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/npy/"
     np.save(f"{folder_path}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
 
 

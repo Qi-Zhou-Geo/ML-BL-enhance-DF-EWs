@@ -13,6 +13,9 @@ import argparse
 import numpy as np
 import pandas as pd
 
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
+
 
 def merge_files(input_file_dir, input_files, output_file):
 
@@ -38,27 +41,25 @@ def merge_files(input_file_dir, input_files, output_file):
 
 
 def main(input_year, input_station, input_component, id1, id2):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-
 
     # Type A
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
     input_file_dir = folder_path
-    output_file = f"{parent_dir}/data/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt"
+    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt"
     input_files = [f"{input_year}_{input_station}_{input_component}_{i}_A.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
     input_file_dir = folder_path
-    output_file = f"{parent_dir}/data/seismic_feature/{input_year}_{input_station}_{input_component}_all_B.txt"
+    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_B.txt"
     input_files = [f"{input_year}_{input_station}_{input_component}_{i}_B.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B network
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
     input_file_dir = folder_path
-    output_file = f"{parent_dir}/data/seismic_feature/{input_year}_{input_component}_all_network.txt"
+    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_component}_all_network.txt"
     input_files = [f"{input_year}_{input_component}_{i}_net.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 

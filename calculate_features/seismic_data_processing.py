@@ -11,13 +11,31 @@ import numpy as np
 from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
+# import manually remove sensor response
+from remove_sensor_response import manually_remove_sensor_response
 
 def load_seismic_signal(seismic_network, station, component, data_start, data_end, remove_sensor_response=True):
-    sac_path = f"/storage/vast-gfz-hpc-01/project/seismic_data_qi/seismic/EU/Illgraben/"
+
+    # config the snesor parameter based on seismci network code
+    if seismic_network == "9J" or seismic_network == "9S":
+        sac_path = CONFIG_dir["sac_path_Illgraben"]
+        response_type = "xml"
+    elif seismic_network == "1A":
+        sac_path = CONFIG_dir["sac_path_Museum"]
+        response_type = "simulate"
+    elif seismic_network == "LD":
+        sac_path = CONFIG_dir["sac_path_Luding"]
+        response_type = "simulate"
+    else:
+        print(f"please check the seismic_network: {seismic_network}")
+
 
     d1 = UTCDateTime(data_start)
     d2 = UTCDateTime(data_end)
 
+    # make sure all you file is structured like this
     file_dir = f"{sac_path}{d1.year}/{station}/{component}/"
 
     if d1.julday == d2.julday:
@@ -35,9 +53,17 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
     st.detrend('demean')
 
     if remove_sensor_response is True:
-        meta_file = [f for f in os.listdir(f"{sac_path}meta_data") if f.startswith(seismic_network)][0]
-        inv = read_inventory(f"{sac_path}meta_data/{meta_file}")
-        st.remove_response(inventory=inv)
+
+        if response_type == "xml": # with xml file
+            meta_file = [f for f in os.listdir(f"{sac_path}meta_data") if f.startswith(seismic_network)][0]
+            inv = read_inventory(f"{sac_path}meta_data/{meta_file}")
+            st.remove_response(inventory=inv)
+        elif response_type == "simulate": # with poles and zeros
+            st = manually_remove_sensor_response(st, "trillium_compact_120s_754")
+        else:
+            print(f"please check the response_type: {response_type}")
+    else:
+        pass
 
     st.filter("bandpass", freqmin=1, freqmax=45)
     st = st.trim(starttime=d1, endtime=d2, nearest_sample=False)

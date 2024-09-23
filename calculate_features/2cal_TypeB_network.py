@@ -24,10 +24,13 @@ from scipy.stats import kurtosis, skew, iqr, wasserstein_distance
 from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
+# import CONFIG_dir as a global variable
+from config.config_dir import CONFIG_dir
+
+
 def check_folder(input_year, input_component):
 
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
 
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -123,27 +126,19 @@ def record_data_header(input_year, input_component, julday):
                      'mean_coherenceOfNet', 'max_coherenceOfNet',
                      'mean_lagTimeOfNet', 'std_lagTimeOfNet',
                      'mean_wdOfNet', 'std_wdOfNet']  # timestamps + component + 9 network features
-    fmt_list = ['%.2f', '%.1f',
-                '%.1f', '%.1f',
-                '%.2f', '%.2f',
-                '%.3e','%.3e',
-                '%.3e','%.3e',
-                '%.3e','%.3e']
 
     feature_names = np.array(feature_names)
 
 
     # give features title and be careful the file name and path
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
 
     with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
         np.savetxt(file, [feature_names], header='', delimiter=',', comments='', fmt='%s')
 
 
 def run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
-    folder_path_npy = f"{parent_dir}/data/seismic_feature/{input_year}/"
+    folder_path_npy =f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/"
 
 
     for julday in range(id1, id2):  # 91 = 1st of May to 305=31 of Nov.
@@ -215,8 +210,7 @@ def run_cal_loop(input_year, input_component, input_window_size, id1, id2, stati
                             mean_lagTime, std_lagTime,
                             mean_wd, std_wd))
             # do not give header here ( see [feature_names] )
-            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # get the parent path
-            folder_path = f"{parent_dir}/data/seismic_feature/{input_year}/network/{input_component}"
+            folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
             with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
                 np.savetxt(file, arr.reshape(1, -1), header='', delimiter=',', comments='', fmt='%s')#fmt_list)
 
