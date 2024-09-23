@@ -19,4 +19,5 @@ def config_dir():
 
     return CONFIG_dir
 
+# please keep in mind this file I/O directory
 CONFIG_dir = config_dir()
