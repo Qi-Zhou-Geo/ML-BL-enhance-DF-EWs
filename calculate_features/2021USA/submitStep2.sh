@@ -7,8 +7,9 @@
 
 #SBATCH --mem-per-cpu=16G		   # Memory Request (per CPU; can use on GLIC)
 
-#SBATCH --output //home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step2/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  //home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step2/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
+#SBATCH --chdir=/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features # set working dir
+#SBATCH --output=2021USA/logs/step2/out_%A_%a_%x.txt  # Standard Output Log File
+#SBATCH --error=2021USA/logs/step2/err_%A_%a_%x.txt   # Standard Error Log File
 
 source /home/qizhou/miniforge3/bin/activate
 conda activate seismic
@@ -36,7 +37,7 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 echo "Year: $current_parameters1, Component: $current_parameters2, Julday: $current_parameters3, Station list: ${parameters4[@]}"
 
 # Run your Python script using srun with the parameters
-srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2cal_TypeB_network.py \
+srun python 2cal_TypeB_network.py \
      --input_year "$current_parameters1" \
      --input_component "$current_parameters2" \
      --input_window_size 60 \

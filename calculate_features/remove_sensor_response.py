@@ -6,6 +6,8 @@
 #__find me__ = qi.zhou@gfz-potsdam.de, qi.zhou.geo@gmail.com, https://github.com/Nedasd
 # Please do NOT distribute this code without the author's permission
 
+from obspy.signal.invsim import simulate_seismometer
+
 
 def manually_remove_sensor_response(trace, sensor_type):
     '''
@@ -19,7 +21,6 @@ def manually_remove_sensor_response(trace, sensor_type):
     - st (obspy.core.stream): seismic stream that removed the sensor response
     '''
 
-    from obspy.signal.invsim import simulate_seismometer
     corrected_trace = trace.copy()
 
     # reference,

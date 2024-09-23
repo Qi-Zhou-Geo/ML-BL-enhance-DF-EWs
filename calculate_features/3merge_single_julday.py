@@ -9,9 +9,15 @@
 
 
 import os
+import sys
 import argparse
 import numpy as np
 import pandas as pd
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
 
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir

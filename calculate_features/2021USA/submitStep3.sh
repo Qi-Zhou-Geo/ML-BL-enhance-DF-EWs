@@ -7,15 +7,16 @@
 
 #SBATCH --mem-per-cpu=8G		   # Memory Request (per CPU; can use on GLIC)
 
-#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step3/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step3/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
+#SBATCH --chdir=/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features # set working dir
+#SBATCH --output=2021USA/logs/step3/out_%A_%a_%x.txt  # Standard Output Log File
+#SBATCH --error=2021USA/logs/step3/err_%A_%a_%x.txt   # Standard Error Log File
 
 
 source /home/qizhou/miniforge3/bin/activate
 conda activate seismic
 
 # Define arrays for parameters1, parameters2, and parameters3
-parameters1=(2020)
+parameters1=(2021)
 parameters2=("COCB" "E19A")
 parameters3=("CHZ")
 
@@ -33,7 +34,7 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 echo "Year: $current_parameters1, Station: $current_parameters2, Component: $current_parameters3"
 
 # Run your Python script using srun with the parameters
-srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/3merge_single_julday.py \
+srun python 3merge_single_julday.py \
     --input_year "$current_parameters1" \
     --input_station "$current_parameters2" \
     --input_component "$current_parameters3" \

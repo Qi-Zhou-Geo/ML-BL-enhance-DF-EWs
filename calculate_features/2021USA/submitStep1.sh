@@ -4,11 +4,11 @@
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
 #SBATCH --array=1-128              # job array id, !!!! all combination of parameters1-3
-#SBATCH --mem-per-cpu=8G		       # Memory Request (per CPU; can use on GLIC)
+#SBATCH --mem-per-cpu=32G		       # Memory Request (per CPU; can use on GLIC)
 
-#SBATCH --output /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step1/out_%A_%a_%x.txt 		# Standard Output Log File (for Job Arrays)
-#SBATCH --error  /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/2021USA/logs/step1/err_%A_%a_%x.txt 		# Standard Error Log File (for Job Arrays)
-
+#SBATCH --chdir=/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features # set working dir
+#SBATCH --output=2021USA/logs/step1/out_%A_%a_%x.txt  # Standard Output Log File
+#SBATCH --error=2021USA/logs/step1/err_%A_%a_%x.txt   # Standard Error Log File
 
 source /home/qizhou/miniforge3/bin/activate
 conda activate seismic
@@ -33,7 +33,7 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 # Print the current combination
 echo "Year: $current_parameters1, Station: $current_parameters2, Julday $current_parameters3"
 
-srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_features/1cal_TypeA_TypeB.py \
+srun python 1cal_TypeA_TypeB.py \
     --seismic_network "1A" \
     --input_year "$current_parameters1" \
     --input_station "$current_parameters2" \

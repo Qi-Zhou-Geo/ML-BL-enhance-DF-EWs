@@ -8,6 +8,7 @@
 
 
 import os
+import sys
 import argparse
 from datetime import datetime
 
@@ -23,11 +24,17 @@ from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
 
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir
 from Type_A_features import *      # import Qi's all features (by *)
 from Type_B_features import *      # import Clement's all features (by *)
 from seismic_data_processing import * # load and process the seismic signals
+
 
 def check_folder(input_year, input_station, input_component):
 

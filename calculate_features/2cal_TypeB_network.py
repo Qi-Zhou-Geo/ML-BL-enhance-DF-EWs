@@ -7,6 +7,7 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import argparse
 from datetime import datetime
 
@@ -23,6 +24,11 @@ from scipy.stats import kurtosis, skew, iqr, wasserstein_distance
 
 from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
 
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir
@@ -231,6 +237,10 @@ def main(input_year, input_component, input_window_size, id, station_list):  # U
     #map_start_julday = {2013:147, 2014:91,  2017_1:140, 2018-2019:145, 2019:145, 2020:152}
     #map_end_julday   = {2013:245, 2014:273, 2017_1:183, 2018-2019:250, 2019:250, 2020:250}
     #id1, id2 = map_start_julday.get(input_year),  map_end_julday.get(input_year)
+    if len(station_list) == 2:
+        station_list.append(station_list[0])
+    else:
+        pass
 
     id1, id2 = id, id + 1
     run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list)  # run the loop
