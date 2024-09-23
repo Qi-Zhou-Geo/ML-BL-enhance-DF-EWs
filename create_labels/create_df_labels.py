@@ -7,11 +7,17 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import argparse
 
 import pandas as pd
 import numpy as np
 from obspy.core import UTCDateTime # default is UTC+0 time zone
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
 
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir

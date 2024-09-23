@@ -23,7 +23,7 @@ if parent_dir not in sys.path:
 from config.config_dir import CONFIG_dir
 
 
-def load_all_features(input_year, input_station, input_component):
+def load_all_features(input_year, input_station, input_component, training_or_testing):
 
     # BL sets
     df1 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt",
@@ -37,9 +37,19 @@ def load_all_features(input_year, input_station, input_component):
     df3 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_component}_all_network.txt",
                       header=0, low_memory=False, usecols=np.arange(3, 13))
 
-    # time stamps, binary labels, probability of label 1(DF)
-    df4 = pd.read_csv(f"{parent_dir}/data/event_label/{input_year}_{input_station}_{input_component}_observed_label.txt",
-                      header=0, low_memory=False)
+    if training_or_testing == "training" or training_or_testing == "testing":
+        # time stamps, binary labels, probability of label 1(DF)
+        df4 = pd.read_csv(
+            f"{CONFIG_dir['output_dir']}/data_output/event_label/{input_year}_{input_station}_{input_component}_observed_label.txt",
+            header=0, low_memory=False)
+    elif training_or_testing == "dual_testing":
+        # give a fake observed label with same length as df1-df3
+        # time stamps, binary labels (fake), probability of label 1(DF)
+        df4 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt",
+                      header=0, low_memory=False, usecols=[0, 1, 20]) # column 20`is the last column
+    else:
+        print(f"check the training_or_testing {training_or_testing}")
+
 
     df = pd.concat([df1, df2, df3, df4], axis=1, ignore_index=True)
     columnsName = np.concatenate([df1.columns.values, df2.columns.values, df3.columns.values, df4.columns.values])
@@ -48,25 +58,34 @@ def load_all_features(input_year, input_station, input_component):
     return df
 
 
-def select_features(input_station, feature_type, input_component, training_or_testing):
+def select_features(input_station, feature_type, input_component, training_or_testing, input_data_year):
+    '''
+    Parameters:
+    ----------
+            input_station: str, input station
+            feature_type: str, feature type (A, B, and C)
+            input_component: str, data component
+            input_data_year: list[float], data year
+
+    Returns:
+            input_features_name: data frame, feature name
+            x: data frame, input data with corresponding timestamp
+            y: data frame, data label with corresponding timestamp
+            time_stamp_float: data frame in float type, corresponding timestamp
+            time_stamp_str: data frame in float type, corresponding timestamp
+    -------
+
+    '''
+
+    df = pd.DataFrame() # emoty df to store the data
 
     mapping_input_station = {"ILL18":"ILL08", "ILL12":"ILL02", "ILL13":"ILL03"}
-
-    if training_or_testing == "training":
-        input_year_data = [2017, 2018, 2019]
-    elif training_or_testing == "testing":
-        input_year_data = [2020]
-    else:
-        print(f"please check the training_or_testing, {training_or_testing}")
-
-
-    df = pd.DataFrame()
-    for input_year in input_year_data:
+    for input_year in input_data_year:
         if input_year == 2017:
             station = mapping_input_station.get(input_station)
         else:
             station = input_station
-        df1 = load_all_features(input_year, station, input_component)
+        df1 = load_all_features(input_year, station, input_component, training_or_testing)
 
         df = pd.concat([df, df1], axis=0, ignore_index=True)
 

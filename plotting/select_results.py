@@ -17,8 +17,8 @@ import seaborn as sns
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # get the parent path
 
 
-#df1 = pd.read_csv(f"{parent_dir}model_output/#version1/output_ensemble/summary1.txt", header=None)
-#df2 = pd.read_csv(f"{parent_dir}model_output/#version1/output_ensemble/summary2.txt", header=None)
+#df1 = pd.read_csv(f"{parent_dir}train_test_output/#version1/output_ensemble/summary1.txt", header=None)
+#df2 = pd.read_csv(f"{parent_dir}train_test_output/#version1/output_ensemble/summary2.txt", header=None)
 #df = pd.concat([df1, df2], axis=0)
 
 df = pd.read_csv(f"/Users/qizhou/Desktop/summary.txt", header=None)
