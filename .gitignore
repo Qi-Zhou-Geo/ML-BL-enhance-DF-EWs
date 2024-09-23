@@ -1,5 +1,5 @@
 # Ignore all .txt files in 'output' and any of its subfolders
-output/data_output/*.txt
+output/data_output/**/*.txt
 output/model_output/**/*.txt
 output/model_output/**/*.pt
 output/model_output/**/*.pkl
