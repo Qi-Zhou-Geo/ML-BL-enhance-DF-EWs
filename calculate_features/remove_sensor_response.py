@@ -30,6 +30,13 @@ def manually_remove_sensor_response(trace, sensor_type):
     # if you do use the cube logger, refer link at "Sensitivity and clip values"
 
     paz_trillium_compact_120s_754 = {
+        'zeros': [(0 + 0j),
+                  (0 + 0j),
+                  (-392 + 0j),
+                  (-1960 + 0j),
+                  (-1490 + 1740j),
+                  (-1490 - 1740j)],
+
         'poles': [(-0.03691 + 0.03702j),
                   (-0.03691 - 0.03702j),
                   (-343 + 0j),
@@ -42,19 +49,26 @@ def manually_remove_sensor_response(trace, sensor_type):
                   (-6900 + 0j),
                   (-15000 + 0j)],
 
-        'zeros': [(0 + 0j),
-                  (0 + 0j),
-                  (-392 + 0j),
-                  (-1960 + 0j),
-                  (-1490 + 1740j),
-                  (-1490 - 1740j)],
-
         'gain': 4.34493e17,
         'sensitivity': 3.0172e8
     }
 
+    paz_IGU_16HR_EB_3C_5Hz = {# works for Luding STA01, NOT for Dongchaun
+        'zeros': [(0 + 0j),
+                  (0 + 0j)],
+
+        'poles': [(-22.211059 + 22.217768),
+                  (-22.211059 - 22.217768j)],
+
+        'gain': 76.7,
+        'sensitivity': 6.40174e4
+    }
+
+
     if sensor_type == "trillium_compact_120s_754":
         paz = paz_trillium_compact_120s_754
+    elif sensor_type == "IGU_16HR_EB_3C_5Hz":
+        paz = paz_IGU_16HR_EB_3C_5Hz
     else:
         print(f"please check the sensor_type: {sensor_type}")
 
