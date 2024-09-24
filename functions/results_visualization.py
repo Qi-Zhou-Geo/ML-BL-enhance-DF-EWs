@@ -97,7 +97,7 @@ def visualize_feature_imp(imp_source, imp, input_features_name,
 
 
 def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_testing,
-                               input_station, model_type, feature_type, input_component, num_feats):
+                               input_station, model_type, feature_type, input_component, num_feats=80):
 
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # get the parent path
 

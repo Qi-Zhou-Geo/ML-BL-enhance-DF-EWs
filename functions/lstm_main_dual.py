@@ -7,6 +7,7 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import argparse
 
 import pandas as pd
@@ -16,6 +17,7 @@ from datetime import datetime
 
 import torch
 import torch.nn as nn
+import torch.optim as optim
 
 # Get the absolute path of the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -24,7 +26,7 @@ if parent_dir not in sys.path:
 
 
 # import CONFIG_dir as a global variable
-from functions.config.config_dir import CONFIG_dir
+from config.config_dir import CONFIG_dir
 from functions.dataset2dataloader import *
 from functions.lstm_model import *
 from functions.check_undetected_events import *
@@ -67,19 +69,19 @@ def main(model_type, feature_type, input_component, seq_length, batch_size, ref_
 
     # load the model
     model_dual_test = lstm_classifier(feature_size=map_feature_size.get(feature_type), device=device)
-    load_ckp = f"{CONFIG_dir['output_dir']}train_test_output/trained_model/" \
+    load_ckp = f"{CONFIG_dir['output_dir']}/train_test_output/trained_model/" \
                f"{ref_station}_{model_type}_{feature_type}_{ref_component}.pt"
     model_dual_test.load_state_dict(torch.load(load_ckp, map_location=torch.device('cpu')))
     model_dual_test.to(device)
 
     # do not need this
-    optimizer = torch.optim.Adam(train_model.parameters(), lr=0.0001)
+    optimizer = torch.optim.Adam(model_dual_test.parameters(), lr=0.0001)
     # Define scheduler: Reduce the LR by factor of 0.1 when the metric (like loss) stops improving
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
 
 
     # dual test the model
-    dual_test = lstm_train_test(train_model,
+    dual_test = lstm_train_test(model_dual_test,
                                 optimizer,
                                 train_dataloader.dataLoader(),
                                 test_dataloader.dataLoader(),
@@ -89,7 +91,7 @@ def main(model_type, feature_type, input_component, seq_length, batch_size, ref_
                                 feature_type,
                                 input_component,
                                 scheduler)
-    dual_test.testing(epoch=1) # set 1 as default, no specific meaning
+    dual_test.dual_testing() # only run one dual test function
 
 
     print(f"End Job: UTC+0, {input_station, model_type, feature_type, input_component, seq_length, batch_size}",

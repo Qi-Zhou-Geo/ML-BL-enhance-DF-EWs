@@ -21,7 +21,7 @@ if parent_dir not in sys.path:
 
 
 # import CONFIG_dir as a global variable
-from functions.config.config_dir import CONFIG_dir
+from config.config_dir import CONFIG_dir
 
 
 class lstm_classifier(nn.Module):
