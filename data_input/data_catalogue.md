@@ -43,13 +43,13 @@ This data is stored in <br>
 
 ---------------
 ## Model Training and Testing Data Summary
-### 1, 2017-2019 Illgraben Dataset, EU
+### 1, 2017-2019 Illgraben Training Dataset, EU
 Seismic Network Code: 9S <br>
 Seismic Stations Used: ILL18, ILL12, ILL13 <br>
 Available Components: EHE, EHN, EHZ <br>
 Number of Observed Debris Flow Events: 20 <br>
 
-### 2, 2020 Illgraben Dataset, EU
+### 2, 2020 Illgraben Testing Dataset, EU
 Seismic Network Code: 9S <br>
 Seismic Stations Used: ILL18, ILL12, ILL13 <br>
 Available Components: EHE, EHN, EHZ <br>

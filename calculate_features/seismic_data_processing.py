@@ -20,7 +20,7 @@ if parent_dir not in sys.path:
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir
 # import manually remove sensor response
-from remove_sensor_response import manually_remove_sensor_response
+from calculate_features.remove_sensor_response import manually_remove_sensor_response
 
 def load_seismic_signal(seismic_network, station, component, data_start, data_end, remove_sensor_response=True):
 

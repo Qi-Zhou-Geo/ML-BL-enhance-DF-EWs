@@ -9,6 +9,7 @@ from obspy import read, Stream, UTCDateTime, read_inventory
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 import matplotlib
