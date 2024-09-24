@@ -15,6 +15,7 @@
 #SBATCH --output=model_dual_test/logs/out_%A_%a_%x.txt  # Standard Output Log File
 #SBATCH --error=model_dual_test/logs/err_%A_%a_%x.txt   # Standard Error Log File
 
+# you need to create a folder named as dual_test
 
 # add untested gpu-software stack
 module use /cluster/spack/2022b/share/spack/modules/linux-almalinux8-icelake
@@ -26,7 +27,7 @@ conda activate ml
 
 parameters1=("LSTM") # input model
 parameters2=("A" "B" "C") # input features
-parameters3=("E19A") # input station
+parameters3=("ILL17") # input station
 
 
 # Calculate the indices for the current combination
@@ -44,11 +45,11 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 srun --gres=gpu:A100:1 python lstm_main_dual.py \
      --model_type "$current_parameters1" \
      --feature_type "$current_parameters2" \
-     --input_component "CHZ" \
+     --input_component "EHZ" \
      --seq_length 32 \
      --batch_size 16 \
-     --ref_station "ILL12" \
+     --ref_station "ILL18" \
      --ref_component "EHZ" \
-     --input_seis_network "1A" \
+     --input_seis_network "9S" \
      --input_station "$current_parameters3" \
-     --input_data_year 2021
+     --input_data_year 2022

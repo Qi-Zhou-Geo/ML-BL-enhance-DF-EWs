@@ -12,14 +12,14 @@
 #SBATCH --output=model_dual_test/logs/out_%A_%a_%x.txt  # Standard Output Log File
 #SBATCH --error=model_dual_test/logs/err_%A_%a_%x.txt   # Standard Error Log File
 
-# you need to create a folder named as dual_test
+
 source /home/qizhou/miniforge3/bin/activate
 conda activate ml
 
 
 parameters1=("Random_Forest" "XGBoost") # input model
 parameters2=("A" "B" "C") # input features
-parameters3=("ILL17") # input station
+parameters3=("E19A") # input station
 
 
 # Calculate the indices for the current combination
@@ -37,9 +37,9 @@ current_parameters3=${parameters3[$parameters3_idx - 1]}
 srun python tree_ensemble_main_dual.py \
      --model_type "$current_parameters1" \
      --feature_type "$current_parameters2" \
-     --input_component "EHZ" \
-     --ref_station "ILL18" \
+     --input_component "CHZ" \
+     --ref_station "ILL12" \
      --ref_component "EHZ" \
-     --input_seis_network "9S" \
+     --input_seis_network "1A" \
      --input_station "$current_parameters3" \
-     --input_data_year 2022
+     --input_data_year 2021

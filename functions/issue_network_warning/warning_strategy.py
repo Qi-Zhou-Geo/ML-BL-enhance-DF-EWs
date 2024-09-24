@@ -7,28 +7,39 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import sys
 import argparse
+
 import pandas as pd
 import numpy as np
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 from datetime import datetime
 
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+# internal functions
+from config.config_dir import CONFIG_dir
+
+
 def write_down_warning(model_type, feature_type, input_component, warning_type, record):
-    f = open(f"./output_results/{model_type}_{feature_type}_{input_component}_{warning_type}.txt", 'a')
+    f = open(f"{CONFIG_dir['output_dir']}/dual_test_9S_warning/{model_type}_{feature_type}_{input_component}_{warning_type}.txt", 'a')
     f.write(str(record) + "\n")
     f.close()
 
 
 def merge_multi_detection(input_station_list, model_type, feature_type, input_component):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
 
-    df0 = pd.read_csv(f"{parent_dir}/output_results/predicted_results/"
+    df0 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
                       f"{input_station_list[0]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
 
-    df1 = pd.read_csv(f"{parent_dir}/output_results/predicted_results/"
+    df1 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
                       f"{input_station_list[1]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
 
-    df2 = pd.read_csv(f"{parent_dir}/output_results/predicted_results/"
+    df2 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
                       f"{input_station_list[2]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
 
     assert len(df0) == len(df1) or len(df0) == len(df2), f"check the data length for " \
@@ -65,10 +76,9 @@ def warning_controller(pro_arr, pro_threshold, warning_threshold):
     return status
 
 
-def calculate_increased_time(date_str):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
+def calculate_increased_time(date_str, input_data_year):
 
-    df = pd.read_csv(f"{parent_dir}/plotting/network_warning/2020_CD29time.txt", header=None)
+    df = pd.read_csv(f"{CONFIG_dir['parent_dir']}/data_input/warning_timestamp_benchmark/{input_data_year}_CD29time.txt", header=None)
     warning_time_list = np.array(df).reshape(-1)
 
     arr = []
@@ -85,9 +95,8 @@ def calculate_increased_time(date_str):
     return np.min(np.abs(arr)), warning_time_list[id][0]
 
 
-def warning(pro_threshold, warning_threshold, attention_window_size, input_station_list,
+def warning1(pro_threshold, warning_threshold, attention_window_size, input_station_list,
             model_type, feature_type, input_component):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
 
     df = merge_multi_detection(input_station_list, model_type, feature_type, input_component)
 
@@ -132,99 +141,49 @@ def warning(pro_threshold, warning_threshold, attention_window_size, input_stati
     df1.loc[:, "warning_status"] = warning_status
     df1.loc[:, "increased_warning_time"] = increased_warning_time
     df1.loc[:, "warning_ref_cd29"] = warning_ref_cd29
-    df1.to_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
+    df1.to_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S_warning/{model_type}_{feature_type}_{input_component}_warning_"
                f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", sep=',', index=False, mode='w')
 
+def warning(pro_threshold, warning_threshold, attention_window_size, input_station_list,
+            model_type, feature_type, input_component, input_data_year):
 
-def warning_summary(pro_threshold, warning_threshold, attention_window_size,
-                    model_type, feature_type, input_component):
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # get the parent path
-    # t1 minutess before the ILL18 start time, t2 minutes after the CD29 will not as false warning
-    t1, t2 = 60, 180
+    df = merge_multi_detection(input_station_list, model_type, feature_type, input_component)
 
+    date = np.array(df.iloc[:, 0])
+    warning_status = [] # 0 noise, 1 warning
+    increased_warning_time = [] # float time
+    warning_ref_cd29 = [] # date string
 
-    df1 = pd.read_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
-                      f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", header=0)
-    date = np.array(df1.iloc[:, 0])
+    pro18, pro12, pro13 = np.array(df.iloc[:, 2]), np.array(df.iloc[:, 4]), np.array(df.iloc[:, 6])
 
-    df2 = pd.read_csv(f"{parent_dir}/plotting/network_warning/2020_testing_events.txt", header=None)
-    df3 = pd.read_csv(f"{parent_dir}/plotting/network_warning/2020_CD29time.txt", header=None)
+    for step in range(attention_window_size, len(date)):
 
-    temp = []
-    false_warning = np.array(df1.iloc[:, -2])
-    df1['increased_warning_time'] = df1['increased_warning_time'].replace(to_replace=['noise', 'false_warning'], value=0)
+        pro_arr = np.stack((pro18[step-attention_window_size:step],
+                            pro12[step-attention_window_size:step],
+                            pro13[step-attention_window_size:step]), axis=-1)
 
-    for step in range(len(df2)):
-        id1 = np.where(date == df2.iloc[step, 0])[0][0]
-        id2 = np.where(date == df2.iloc[step, -1])[0][0]
-        id3 = np.where(date == df3.iloc[step, 0][:-3]+":00")[0][0]
+        status = warning_controller(pro_arr, pro_threshold, warning_threshold)
 
-        # remove the false warning
-        # 60 mins before the ILL18 start time, 180 minutes after the CD29
-        false_warning[id1 - t1 : id3 + t2] = np.where(false_warning[id1 - t1 : id3 + t2] == 'false_warning',
-                                                        'fake_warning', # if the donditation is Ture
-                                                        false_warning[id1 - t1 : id3 + t2])# if the donditation is False
-
-        # make sure only use the warning time before id3 (cd29 time stamps)
-        # and the warning may start before the manually labeled start time
-        increased_warning_time = np.array(df1.iloc[id1-20:id3+60, -2], dtype= float)
-        if np.sum(increased_warning_time) > 0:
-            temp.append(np.max(increased_warning_time)) # do not warry, the increased_warning_time decreases
+        if status == "warning":
+            warning_time, ref_cd29 = calculate_increased_time(date[step], input_data_year)
         else:
-            temp.append(0)
+            status = 0 #"noise"
+            warning_time, ref_cd29 = "noise", "none"
 
-    false_warning_times = np.where(false_warning == 'false_warning')[0].size
+        warning_status.append(status)
+        increased_warning_time.append(warning_time)
+        warning_ref_cd29.append(ref_cd29)
 
-
-    record = [model_type, feature_type, input_component,
-              pro_threshold, warning_threshold, attention_window_size, "false_warning_times", false_warning_times,
-              "increased_warning", np.sum(temp), np.max(temp), np.min(temp), len(temp) - np.count_nonzero(temp)]
-    record.extend(list(temp))
-
-    f = open(f"{parent_dir}/plotting/network_warning/warning_summary_{model_type}_{feature_type}_{input_component}.txt", 'a')
-    f.write(str(record) + "\n")
-    f.close()
-
-
-    # replace the df1
-    df1.iloc[:, -2] = false_warning
-    df1.to_csv(f"{parent_dir}/plotting/network_warning/output/{model_type}_{feature_type}_{input_component}_warning_"
+    df1 = df.iloc[attention_window_size:, :].copy()
+    assert len(df1) == len(warning_status), f"check the size of df1 and warning_status"
+    df1.loc[:, "warning_status"] = warning_status
+    df1.loc[:, "increased_warning_time"] = increased_warning_time
+    df1.loc[:, "warning_ref_cd29"] = warning_ref_cd29
+    df1.to_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S_warning/{model_type}_{feature_type}_{input_component}_warning_"
                f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", sep=',', index=False, mode='w')
 
-    return record
+model_type, feature_type, input_data_year = "LSTM", "C", 2022
+warning(0, 0.2, 16, ["ILL18", "ILL12", "ILL13"], model_type, feature_type, "EHZ", input_data_year)
 
-
-def main(model_type, feature_type, input_component):
-
-    print(model_type, feature_type, input_component)
-
-    pro_threshold = 0
-    input_station_list = ["ILL18", "ILL12", "ILL13"]
-
-    for idx1, warning_threshold in enumerate(np.arange(0.1, 1.1, 0.1)):
-        for idx2, attention_window_size in enumerate(np.arange(1, 21, 1)):
-
-            warning_threshold = np.round(warning_threshold, 1)
-            attention_window_size = np.round(attention_window_size, 0)
-
-            warning(pro_threshold, warning_threshold, attention_window_size,
-                    input_station_list, model_type, feature_type, input_component)
-
-            record = warning_summary(pro_threshold, warning_threshold, attention_window_size,
-                                     model_type, feature_type, input_component)
-
-            print(f"Finish, {idx1}--{idx2}, {record} {pro_threshold, warning_threshold, attention_window_size, model_type, feature_type, input_component}",
-                  datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='input parameters')
-
-    parser.add_argument("--model_type", default="Random_Forest", type=str, help="model type")
-    parser.add_argument("--feature_type", default="C", type=str, help="feature type")
-    parser.add_argument("--input_component", default="EHZ", type=str, help="seismic input_component")
-
-    args = parser.parse_args()
-
-    main(args.model_type, args.feature_type, args.input_component)
-
+model_type, feature_type, input_data_year = "XGBoost", "C", 2022
+warning(0, 0.4, 2, ["ILL18", "ILL12", "ILL13"], model_type, feature_type, "EHZ", input_data_year)
