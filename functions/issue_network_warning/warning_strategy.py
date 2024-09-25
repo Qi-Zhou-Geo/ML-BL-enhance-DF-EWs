@@ -213,9 +213,9 @@ def dual_testing_warning_summary(pro_threshold, warning_threshold, attention_win
               pro_threshold, warning_threshold, attention_window_size, "false_warning_times", false_warning_times]
     record.extend(list(delta))
 
-    f = open(f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}_warning/dual_testing_warning_summary.txt", 'a')
-    f.write(str(record) + "\n")
-    f.close()
+    #f = open(f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}_warning/dual_testing_warning_summary.txt", 'a')
+    #f.write(str(record) + "\n")
+    #f.close()
 
     return record
 
