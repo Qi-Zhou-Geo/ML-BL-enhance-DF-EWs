@@ -39,14 +39,16 @@ def load_all_features(input_year, input_station, input_component, training_or_te
 
     if training_or_testing == "training" or training_or_testing == "testing":
         # time stamps, binary labels, probability of label 1(DF)
-        df4 = pd.read_csv(
-            f"{CONFIG_dir['output_dir']}/data_output/event_label/{input_year}_{input_station}_{input_component}_observed_label.txt",
-            header=0, low_memory=False)
+        df4 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/event_label/"
+                          f"{input_year}_{input_station}_{input_component}_observed_label.txt",
+                          header=0, low_memory=False)
     elif training_or_testing == "dual_testing":
         # give a fake observed label with same length as df1-df3
         # time stamps, binary labels (fake), probability of label 1(DF)
-        df4 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt",
-                      header=0, low_memory=False, usecols=[0, 1, 20]) # column 20`is the last column
+        # you can use df1
+        df4 = pd.read_csv(f"{CONFIG_dir['output_dir']}/data_output/event_label/"
+                          f"{input_year}_{input_station}_{input_component}_observed_label.txt",
+                          header=0, low_memory=False)
     else:
         print(f"check the training_or_testing {training_or_testing}")
 
