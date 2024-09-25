@@ -100,7 +100,7 @@ def plot(seismic_network, input_component, x_interval, data_start, data_end, jul
                 f"{julday}_{str(step).zfill(3)}_{seismic_network}_{input_component}_{data_start}_{data_end}.png", dpi=600)
 
 
-def main(julday):
+def maaa1(julday):
 
     for step in np.arange(0, 6):
         data_start = UTCDateTime(year=2022, julday=julday) + step * 4 * 3600
@@ -111,6 +111,15 @@ def main(julday):
         seismic_network, input_component, x_interval = "9S", "EHZ", 1
         plot(seismic_network, input_component, x_interval, data_start, data_end, julday, step)
 
+def main(julday):
+    step = 1
+    data_start = UTCDateTime(year=2022, julday=julday)
+    data_end = UTCDateTime(year=2022, julday=julday) + 24 * 3600
+
+    data_start, data_end = data_start.strftime('%Y-%m-%d %H:%M:%S'), data_end.strftime('%Y-%m-%d %H:%M:%S')
+
+    seismic_network, input_component, x_interval = "9S", "EHZ", 4
+    plot(seismic_network, input_component, x_interval, data_start, data_end, julday, step)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='input parameters')

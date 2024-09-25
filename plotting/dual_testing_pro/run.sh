@@ -3,7 +3,7 @@
 #SBATCH --job-name=warning         # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-124              # job array id
+#SBATCH --array=1-2              # job array id
 
 #SBATCH --mem-per-cpu=8G		       # Memory Request (per CPU; can use on GLIC)
 #SBATCH --begin=2023-10-20T09:00:00# job start time, if it later than NOW, job will be run immediatly.
