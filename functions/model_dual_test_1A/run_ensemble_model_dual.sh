@@ -9,8 +9,8 @@
 #SBATCH --begin=2023-10-20T09:00:00# job start time, if it later than NOW, job will be run immediatly.
 
 #SBATCH --chdir=/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/functions # set working dir
-#SBATCH --output=model_dual_test/logs/out_%A_%a_%x.txt  # Standard Output Log File
-#SBATCH --error=model_dual_test/logs/err_%A_%a_%x.txt   # Standard Error Log File
+#SBATCH --output=model_dual_test_9S/logs/out_%A_%a_%x.txt  # Standard Output Log File
+#SBATCH --error=model_dual_test_9S/logs/err_%A_%a_%x.txt   # Standard Error Log File
 
 
 source /home/qizhou/miniforge3/bin/activate

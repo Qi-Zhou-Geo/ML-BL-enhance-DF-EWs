@@ -34,13 +34,13 @@ def write_down_warning(model_type, feature_type, input_component, warning_type, 
 def merge_multi_detection(input_station_list, model_type, feature_type, input_component):
 
     df0 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
-                      f"{input_station_list[0]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
+                      f"{input_station_list[0]}_{model_type}_{feature_type}_{input_component}_dual_testing_output.txt", header=0)
 
     df1 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
-                      f"{input_station_list[1]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
+                      f"{input_station_list[1]}_{model_type}_{feature_type}_{input_component}_dual_testing_output.txt", header=0)
 
     df2 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S/"
-                      f"{input_station_list[2]}_{model_type}_{feature_type}_{input_component}_testing_output.txt", header=0)
+                      f"{input_station_list[2]}_{model_type}_{feature_type}_{input_component}_dual_testing_output.txt", header=0)
 
     assert len(df0) == len(df1) or len(df0) == len(df2), f"check the data length for " \
                                                          f"{input_station_list, model_type, feature_type, input_component}"
@@ -166,6 +166,10 @@ def warning(pro_threshold, warning_threshold, attention_window_size, input_stati
 
         if status == "warning":
             warning_time, ref_cd29 = calculate_increased_time(date[step], input_data_year)
+            if warning_time > 3600 * 3: # not issue a warning close to the time stamps of any CD29, unit of 3600 is second
+                status = 'fake_warning'
+            else:
+                pass
         else:
             status = 0 #"noise"
             warning_time, ref_cd29 = "noise", "none"
@@ -182,8 +186,36 @@ def warning(pro_threshold, warning_threshold, attention_window_size, input_stati
     df1.to_csv(f"{CONFIG_dir['output_dir']}/dual_test_9S_warning/{model_type}_{feature_type}_{input_component}_warning_"
                f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", sep=',', index=False, mode='w')
 
-model_type, feature_type, input_data_year = "LSTM", "C", 2022
-warning(0, 0.2, 16, ["ILL18", "ILL12", "ILL13"], model_type, feature_type, "EHZ", input_data_year)
 
-model_type, feature_type, input_data_year = "XGBoost", "C", 2022
-warning(0, 0.4, 2, ["ILL18", "ILL12", "ILL13"], model_type, feature_type, "EHZ", input_data_year)
+def dual_testing_warning_summary(pro_threshold, warning_threshold, attention_window_size,
+                                 model_type, feature_type, input_component, seismic_network, input_data_year):
+
+    df1 = pd.read_csv(f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}_warning/{model_type}_{feature_type}_{input_component}_warning_"
+                      f"{pro_threshold}_{warning_threshold}_{attention_window_size}.txt", header=0)
+    date = np.array(df1.iloc[:, 0])
+    df1['increased_warning_time'] = df1['increased_warning_time'].replace(to_replace=['noise'], value=0)
+
+
+    df3 = pd.read_csv(f"{CONFIG_dir['parent_dir']}/data_input/warning_timestamp_benchmark/{input_data_year}_CD29time.txt", header=None)
+
+    delta = []
+    for step in range(len(df3)):
+        id1 = np.where(date == df3.iloc[step, 0])[0][0] - 180
+        id2 = np.where(date == df3.iloc[step, 0])[0][0]
+        increased_warning_time = np.array(df1.iloc[id1:id2, -2], dtype= float)
+        increased_warning_time = np.max(increased_warning_time)
+        delta.append(increased_warning_time)
+
+    false_warning_times = np.where(df1.iloc[:, -3] == 'fake_warning')[0].size
+
+
+    record = [model_type, feature_type, input_component,
+              pro_threshold, warning_threshold, attention_window_size, "false_warning_times", false_warning_times]
+    record.extend(list(delta))
+
+    f = open(f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}_warning/dual_testing_warning_summary.txt", 'a')
+    f.write(str(record) + "\n")
+    f.close()
+
+    return record
+

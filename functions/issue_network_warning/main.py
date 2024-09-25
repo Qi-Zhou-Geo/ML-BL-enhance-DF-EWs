@@ -25,7 +25,7 @@ if parent_dir not in sys.path:
 from config.config_dir import CONFIG_dir
 from functions.issue_network_warning.warning_strategy import *
 
-def main(model_type, feature_type, input_component):
+def asd(model_type, feature_type, input_component):
 
     print(model_type, feature_type, input_component)
 
@@ -46,6 +46,18 @@ def main(model_type, feature_type, input_component):
 
             print(f"Finish, {idx1}--{idx2}, {record} {pro_threshold, warning_threshold, attention_window_size, model_type, feature_type, input_component}",
                   datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+def main(model_type, feature_type, input_component):
+    input_data_year = 2022
+
+    for idx1, warning_threshold in enumerate(np.arange(0.1, 1.1, 0.1)):
+        for idx2, attention_window_size in enumerate(np.arange(1, 21, 1)):
+
+            warning_threshold = np.round(warning_threshold, 1)
+            attention_window_size = np.round(attention_window_size, 0)
+
+            warning(0, warning_threshold, attention_window_size, ["ILL17", "ILL12", "ILL13"], model_type, feature_type, input_component, input_data_year)
+            dual_testing_warning_summary(0, warning_threshold, attention_window_size, model_type, feature_type, input_component, "9S", input_data_year)
 
 
 if __name__ == "__main__":
