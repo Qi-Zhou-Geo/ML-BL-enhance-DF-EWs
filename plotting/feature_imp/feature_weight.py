@@ -82,10 +82,10 @@ ax1 = plt.subplot(gs[0])
 #ax1.set_title('(a) ILL18', weight="bold", loc='left')
 input_station, feature_type = "ILL18", "C"
 model_type = "Random_Forest"
-df1 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df1 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 model_type = "XGBoost"
-df2 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df2 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 y1 = df1.iloc[:, 1]
 y2 = df2.iloc[:, 1]
@@ -102,15 +102,15 @@ ax1.axes.xaxis.set_ticklabels([])
 text_plot = True
 if text_plot == True:
     ax1.text(0, 0.75, s="Benford's Law Set",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax1.text(11, 0.75, s="Waveform Set",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax1.text(36, 0.75, s="Spectral Set",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax1.text(53, 0.75, s="Spectrogram Set",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax1.text(70, 0.75, s="Network Set",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
 
 # </editor-fold>
 
@@ -121,10 +121,10 @@ ax2 = plt.subplot(gs[1])
 
 input_station, feature_type = "ILL12", "C"
 model_type = "Random_Forest"
-df1 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df1 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 model_type = "XGBoost"
-df2 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df2 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 y1 = df1.iloc[:, 1]
 y2 = df2.iloc[:, 1]
@@ -146,10 +146,10 @@ ax3 = plt.subplot(gs[2])
 
 input_station, feature_type = "ILL13", "C"
 model_type = "Random_Forest"
-df1 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df1 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 model_type = "XGBoost"
-df2 = pd.read_csv(f"{parent_dir}/output_results/figures/"
+df2 = pd.read_csv(f"{parent_dir}/output/train_test_output/figures/"
                   f"{input_station}_{model_type}_{feature_type}_{input_component}_build_in_IMP.txt", header = None)
 y1 = df1.iloc[:, 1]
 y2 = df2.iloc[:, 1]
@@ -165,25 +165,25 @@ ax3.xaxis.set_major_locator(ticker.MultipleLocator(10))
 text_plot = True
 if text_plot == True:
     ax3.text(36, 0.95, s="ID 0: First digit frequency of 1",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(36, 0.85, s="ID 8: First digit frequency of 9",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(36, 0.75, s="ID 10: Power law exponent",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(36, 0.65, s="ID 14: Kurtosis of the signal",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
 
     ax3.text(53, 0.95, s="ID 22: Energy of signals filtered in 1-5 Hz",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(53, 0.85, s="ID 23: Energy of signals filtered in 5-15 Hz",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(53, 0.75, s="ID 24: Energy of signals filtered in 15-25 Hz",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
 
     ax3.text(53, 0.65, s="ID 35: Interquartile range",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
     ax3.text(53, 0.55, s="ID 47: Energy between 1/4 and 1/2 Nyquist frequency",
-             ha='left', va='center', fontsize=5, color="grey")
+             ha='left', va='center', fontsize=5, color="black")
 
 # </editor-fold>
 

@@ -48,29 +48,52 @@ def feath_data(station, model_type):
     return f1, falilured_detected, tpr, fpr
 
 
-def plot_fig(ax, tpr, fpr, model_type):
+def plot_fig(ax, tpr, fpr, model_type, idx):
 
     if model_type == "Random_Forest":
-        c = 'b'
+        marker = 'o'
         model_type = "Random Forest"
+        ls = "--"
     elif model_type == "XGBoost":
-        c = 'r'
+        marker = 's'
         model_type = "XGBoost"
+        ls = "-"
     else:
         print(f"check model type {model_type}")
 
     x = np.arange(tpr.size)
 
-    plt.scatter(x, tpr, marker="o", color=c, alpha=0.5, label=f"TPR of {model_type}", zorder=2)
-    plt.scatter(x, fpr, marker="s", color=c, alpha=0.5, label=f"FPR of {model_type}", zorder=2)
+    #ax.scatter(x, tpr, marker=marker, color="red", alpha=0.5, label=f"TPR of {model_type}", zorder=2)
+    ax.plot(x, tpr, color="red", ls=ls, label=f"{model_type}", zorder=2)
+    ax.grid(axis='x', ls="--", lw=0.5, zorder=1)
+    ax.spines['left'].set_color("red")
+    ax.tick_params(axis='y', which='both', colors="red")
+    if idx == 1:
+        plt.ylabel("Ture Positive Rate (TPR)", weight="bold", color="red")
 
-    plt.grid(axis='y', ls="--", lw=0.5, zorder=1)
 
-    plt.yscale("log")
-    plt.ylim(1e-4, 2)
+    ax.set_ylim(0.2, 1.1)
     plt.xlim(-0.5, 80.5)
     ax.axes.xaxis.set_ticklabels([])
     ax.xaxis.set_minor_locator(ticker.MultipleLocator(2)) # unit is mintute
+
+    ax0 = ax.twinx()
+    #ax0.scatter(x, fpr, marker=marker, color="blue", alpha=0.5, label=f"FPR of {model_type}", zorder=2)
+    ax0.plot(x, fpr, color="blue", ls=ls, label=f"{model_type}", zorder=2)
+    ax0.spines['right'].set_color("blue")
+    ax0.tick_params(axis='y', which='both', colors="blue")
+    if idx == 1:
+        plt.ylabel("False Positive Rate (FPR)", weight="bold", color="blue")
+
+
+    plt.yscale("log")
+    ax0.set_ylim(1e-4, 1e-2)
+    plt.xlim(-0.5, 80.5)
+    ax0.axes.xaxis.set_ticklabels([])
+    ax0.xaxis.set_minor_locator(ticker.MultipleLocator(2)) # unit is mintute
+
+    return ax, ax0
+
 
 
 
@@ -80,45 +103,41 @@ gs = gridspec.GridSpec(3, 1)
 ax = plt.subplot(gs[0])
 station, model_type = "ILL18", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
+plt.text(x=0, y=0.8, s=f" (a) {station}", weight="bold")
+plot_fig(ax, tpr, fpr, model_type, 0)
 
 station, model_type = "ILL18", "XGBoost"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
-plt.legend(loc="center right", fontsize=6, ncols=2)
-plt.text(x=0, y=1e-1, s=f" (a) {station}", weight="bold")
+ax, ax0 = plot_fig(ax, tpr, fpr, model_type, 0)
+#plt.legend(loc="center right", fontsize=6, ncols=2)
 
 
 ax = plt.subplot(gs[1])
 station, model_type = "ILL12", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
+plt.text(x=0, y=0.8, s=f" (b) {station}", weight="bold")
+plot_fig(ax, tpr, fpr, model_type, 1)
 
 station, model_type = "ILL12", "XGBoost"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
-plt.text(x=0, y=1e-1, s=f" (b) {station}", weight="bold")
+plot_fig(ax, tpr, fpr, model_type, 0)
 
 
 ax = plt.subplot(gs[2])
 station, model_type = "ILL13", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
+plt.text(x=0, y=0.8, s=f" (c) {station}", weight="bold")
+plot_fig(ax, tpr, fpr, model_type, 2)
 
 station, model_type = "ILL13", "XGBoost"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plot_fig(ax, tpr, fpr, model_type)
-
-plt.text(x=0, y=1e-1, s=f" (c) {station}", weight="bold")
+plot_fig(ax, tpr, fpr, model_type, 2)
 
 xLocation = np.arange(0, 81, 10)
 xTicker = [str(80-i) for i in xLocation]
 ax.set_xticks(xLocation, xTicker)
 plt.xlabel("Number of Input Seismic Features", weight="bold")
 
-
-fig.text(x=0, y=0.5, s="Ture Positive Rate (TPR) or False Positive Rate (FPR)", weight="bold", va='center', rotation='vertical')
-
 plt.tight_layout()
-plt.savefig(f"{parent_dir}/reduce_feature_1by1.png", dpi=600, transparent=True)
+plt.savefig(f"{parent_dir}/reduce_feature_1by1.png", dpi=600)
 plt.show()
