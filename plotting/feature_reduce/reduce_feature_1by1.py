@@ -136,7 +136,7 @@ plot_fig(ax, tpr, fpr, model_type, 2)
 xLocation = np.arange(0, 81, 10)
 xTicker = [str(80-i) for i in xLocation]
 ax.set_xticks(xLocation, xTicker)
-plt.xlabel("Number of Input Seismic Features", weight="bold")
+ax.set_xlabel("Number of Input Seismic Features", weight="bold")
 
 plt.tight_layout()
 plt.savefig(f"{parent_dir}/reduce_feature_1by1.png", dpi=600)

@@ -51,7 +51,8 @@ def plot_cm(data_array, f1, index, model_type, input_station):
 
 def loopForCM(input_station, model_type, feature_type, input_component="EHZ", training_or_testing="testing"):
 
-    df = pd.read_csv(f"{parent_dir}/output_results/predicted_results/{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt",
+    df = pd.read_csv(f"{parent_dir}/output/train_test_output/predicted_results/"
+                     f"{input_station}_{model_type}_{feature_type}_{input_component}_{training_or_testing}_output.txt",
                      header=0)
 
     all_targets = df.iloc[:, 1]
@@ -73,7 +74,7 @@ def plot_TPR_FPR(ax, input_station, type="testing"):
     color4features = {"A": "#3B75AF", "B": "#EF8636", "C": "#519E3E", "D": "grey"}
 
     parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    df = pd.read_csv(f"{parent_dir}/output_results/summary_{type}.txt", header=None)
+    df = pd.read_csv(f"{parent_dir}/output/train_test_output/summary_results/summary_{type}.txt", header=None)
     df = np.array(df)
 
     for model_type in ["Random_Forest", "XGBoost", "LSTM"]:
@@ -130,19 +131,19 @@ ax = plt.subplot(gs[0])
 input_station ="ILL18"
 plot_TPR_FPR(ax, input_station)
 plt.ylabel("True Positive Rate", weight='bold')
-plt.text(x=1e-4, y=0.50, s=f" (a) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
+plt.text(x=2e-3, y=0.95, s=f" (a) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
 
 
 ax = plt.subplot(gs[1])
 input_station = "ILL12"
 plot_TPR_FPR(ax, input_station)
-plt.text(x=1e-4, y=0.50, s=f" (b) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
+plt.text(x=2e-3, y=0.95, s=f" (b) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
 
 
 ax = plt.subplot(gs[2])
 input_station = "ILL13"
 plot_TPR_FPR(ax, input_station)
-plt.text(x=1e-4, y=0.50, s=f" (c) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
+plt.text(x=2e-3, y=0.95, s=f" (c) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
 #plt.legend(fontsize=6, loc=3)
 
 ax0 = plt.subplot(gs[3])
@@ -234,13 +235,13 @@ plt.title(f'(a)', weight="bold", loc='left')
 ax = plt.subplot(gs[1])
 input_station = "ILL12"
 plot_TPR_FPR(ax, input_station)
-plt.text(x=1e-4, y=0.50, s=f" (b) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
+plt.text(x=2e-3, y=0.95, s=f" (b) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
 
 
 ax = plt.subplot(gs[2])
 input_station = "ILL13"
 plot_TPR_FPR(ax, input_station)
-plt.text(x=1e-4, y=0.50, s=f" (c) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
+plt.text(x=2e-3, y=0.95, s=f" (c) {input_station}", color="black", fontsize=6, ha="left", weight='bold')
 #plt.legend(fontsize=6, loc=3)
 
 ax0 = plt.subplot(gs[3])
