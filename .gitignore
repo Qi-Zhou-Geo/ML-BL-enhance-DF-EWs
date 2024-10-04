@@ -3,5 +3,5 @@ output/**/**/*.txt
 output/train_test_output/**/*.txt
 output/train_test_output/**/*.pt
 output/train_test_output/**/*.pkl
-
+plotting/**/**/*.png
 .idea/

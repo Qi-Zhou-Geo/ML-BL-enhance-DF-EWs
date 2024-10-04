@@ -38,11 +38,6 @@ def increased_warning_time(data_start, st):
     return max_imp_time
 
 
-# meta information, time is UTC+0
-seismic_network, input_station, input_component = "1A", "E19A", "CHZ"
-data_path = f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}/"
-x_interval = 0.5 # unit is hour
-
 def plot_func(seismic_network, input_station, input_component, data_start, data_end):
     fig = plt.figure(figsize=(5, 5))
     gs = gridspec.GridSpec(5, 1, height_ratios=[1.2, 1, 1, 1, 1])
@@ -77,7 +72,7 @@ def plot_func(seismic_network, input_station, input_component, data_start, data_
 
         for model_type in ["Random_Forest", "XGBoost", "LSTM"]:
             pro, false_positive = fetc_data(data_path, input_station, model_type, feature_type, input_component, data_start, data_end)
-            ax.plot(pro, lw=1, label=f"{model_type}-{feature_type}, False Positive={false_positive}", zorder=2)
+            ax.plot(pro, lw=1, label=f"{model_type}-{feature_type}, FP={false_positive}", zorder=2)
             plt.xlim(0, len(pro))
 
         plt.ylabel("Predicted\nDF Pro", fontweight='bold')
@@ -89,7 +84,7 @@ def plot_func(seismic_network, input_station, input_component, data_start, data_
         if idx != 2:
             ax.axes.xaxis.set_ticklabels([])
         else:
-            plt.xlabel(f"UTC+0 (minute-by-minute since {data_start})", fontweight='bold')
+            plt.xlabel(f"UTC+0", fontweight='bold')
 
     duration = int((UTCDateTime(data_end) - UTCDateTime(data_start)) / 3600)
     xLocation = np.arange(0, 60 * (duration + x_interval), 60 * x_interval)
@@ -101,9 +96,67 @@ def plot_func(seismic_network, input_station, input_component, data_start, data_
                 f"{seismic_network}_{input_station}_{input_component}_{data_start}_{data_end}.png", dpi=600)
 
 
+# meta information, time is UTC+0
+seismic_network, input_station, input_component = "1A", "E19A", "CHZ"
+data_path = f"{CONFIG_dir['output_dir']}/dual_test_{seismic_network}/"
+x_interval = 0.5 # unit is hour
+
 time1 = ["2021-07-16 19:00:00", "2021-08-17 18:00:00", "2021-07-14 19:30:00"]
 time2 = ["2021-07-16 22:00:00", "2021-08-17 21:00:00", "2021-07-14 22:30:00"]
 
 for step in np.arange(len(time1)):
     data_start, data_end = time1[step], time2[step]
     plot_func(seismic_network, input_station, input_component, data_start, data_end)
+
+
+
+df = pd.read_csv('/Users/qizhou/Desktop/2022_ILL12_EHZ_all_A.txt', header=0)
+df1 = df.iloc[:, :2]
+df1['label_0nonDF_1DF'] = 0
+date = np.array(df1.iloc[:, 0])
+
+id1 = np.where(date == "2022-06-05 10:00:00")[0][0]
+id2 = np.where(date == "2022-06-05 14:00:00")[0][0] + 1
+df1.iloc[id1:id2, -1] = 1
+
+id1 = np.where(date == "2022-06-30 19:00:00")[0][0]
+id2 = np.where(date == "2022-06-30 22:00:00")[0][0] + 1
+df1.iloc[id1:id2, -1] = 1
+
+id1 = np.where(date == "2022-07-04 19:30:00")[0][0]
+id2 = np.where(date == "2022-07-04 23:30:00")[0][0] + 1
+df1.iloc[id1:id2, -1] = 1
+
+id1 = np.where(date == "2022-09-08 00:00:00")[0][0]
+id2 = np.where(date == "2022-09-08 03:00:00")[0][0] + 1
+df1.iloc[id1:id2, -1] = 1
+
+
+df1.to_csv('/Users/qizhou/Desktop/2022_ILL12_EHZ_observed_label.txt', sep=',', index=False, mode='w')
+
+
+fig = plt.figure(figsize=(5.5, 3))
+gs = gridspec.GridSpec(1, 1)
+
+x = np.arange(361)
+for idx, station in enumerate(["ILL12"]):
+    ax = plt.subplot(gs[idx])
+    for model_type in ["Random_Forest"]:
+        for feature_type in ["A", "B", "C"]:
+            df = pd.read_csv(f'/Users/qizhou/#python/#GitHub_saved/ML-BL-enhance-DF-EWs/output/dual_test_9S/'
+                             f'{station}_{model_type}_{feature_type}_EHZ_dual_testing_output.txt', header=0)
+            date = np.array(df1.iloc[:, 0])
+            id1 = np.where(date == "2022-07-04 19:30:00")[0][0]
+            id2 = np.where(date == "2022-07-05 01:30:00")[0][0] + 1
+            pro = df.iloc[id1:id2, -1]
+
+            ax.plot(x, pro, label=f"{station}-{model_type}-{feature_type}")
+    #plt.legend(fontsize=6)
+    plt.xlabel("UTC+0 Time", weight="bold")
+    plt.ylabel("Probability", weight="bold")
+
+
+
+plt.tight_layout()
+plt.savefig(f"/Users/qizhou/Desktop/2022.png", dpi=600)
+plt.show()

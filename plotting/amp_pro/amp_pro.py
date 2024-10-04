@@ -42,7 +42,7 @@ def get_seismicSignal(data_name, data_start, data_end):
 def fetc_data(input_station, model_type, feature_type, input_component, data_start, data_end):
 
     parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # get the parent path
-    df = pd.read_csv(f"{parent_dir}/output_results/predicted_results/"
+    df = pd.read_csv(f"{parent_dir}/output/train_test_output/predicted_results/"
                      f"{input_station}_{model_type}_{feature_type}_{input_component}_testing_output.txt")
     date = np.array(df.iloc[:, 0])
 

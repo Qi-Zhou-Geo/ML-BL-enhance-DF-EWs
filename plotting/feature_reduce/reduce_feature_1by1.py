@@ -69,7 +69,7 @@ def plot_fig(ax, tpr, fpr, model_type, idx):
     ax.spines['left'].set_color("red")
     ax.tick_params(axis='y', which='both', colors="red")
     if idx == 1:
-        plt.ylabel("Ture Positive Rate (TPR)", weight="bold", color="red")
+        plt.ylabel("True Positive Rate (TPR)", weight="bold", color="red")
 
 
     ax.set_ylim(0.2, 1.1)
@@ -103,7 +103,7 @@ gs = gridspec.GridSpec(3, 1)
 ax = plt.subplot(gs[0])
 station, model_type = "ILL18", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plt.text(x=0, y=0.8, s=f" (a) {station}", weight="bold")
+plt.text(x=0, y=1.0, s=f" (a) {station}", weight="bold")
 plot_fig(ax, tpr, fpr, model_type, 0)
 
 station, model_type = "ILL18", "XGBoost"
@@ -115,7 +115,7 @@ ax, ax0 = plot_fig(ax, tpr, fpr, model_type, 0)
 ax = plt.subplot(gs[1])
 station, model_type = "ILL12", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plt.text(x=0, y=0.8, s=f" (b) {station}", weight="bold")
+plt.text(x=0, y=1.0, s=f" (b) {station}", weight="bold")
 plot_fig(ax, tpr, fpr, model_type, 1)
 
 station, model_type = "ILL12", "XGBoost"
@@ -126,7 +126,7 @@ plot_fig(ax, tpr, fpr, model_type, 0)
 ax = plt.subplot(gs[2])
 station, model_type = "ILL13", "Random_Forest"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
-plt.text(x=0, y=0.8, s=f" (c) {station}", weight="bold")
+plt.text(x=0, y=1.0, s=f" (c) {station}", weight="bold")
 plot_fig(ax, tpr, fpr, model_type, 2)
 
 station, model_type = "ILL13", "XGBoost"
