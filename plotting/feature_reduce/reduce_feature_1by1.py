@@ -63,13 +63,13 @@ def plot_fig(ax, tpr, fpr, model_type, idx):
 
     x = np.arange(tpr.size)
 
-    #ax.scatter(x, tpr, marker=marker, color="red", alpha=0.5, label=f"TPR of {model_type}", zorder=2)
-    ax.plot(x, tpr, color="red", ls=ls, label=f"{model_type}", zorder=2)
+    #ax.scatter(x, tpr, marker=marker, color="black", alpha=0.5, label=f"TPR of {model_type}", zorder=2)
+    ax.plot(x, tpr, color="black", ls=ls, label=f"{model_type}", zorder=2)
     ax.grid(axis='x', ls="--", lw=0.5, zorder=1)
-    ax.spines['left'].set_color("red")
-    ax.tick_params(axis='y', which='both', colors="red")
+    ax.spines['left'].set_color("black")
+    ax.tick_params(axis='y', which='both', colors="black")
     if idx == 1:
-        plt.ylabel("True Positive Rate (TPR)", weight="bold", color="red")
+        plt.ylabel("True Positive Rate (TPR)", weight="bold", color="black")
 
 
     ax.set_ylim(0.2, 1.1)
@@ -78,12 +78,12 @@ def plot_fig(ax, tpr, fpr, model_type, idx):
     ax.xaxis.set_minor_locator(ticker.MultipleLocator(2)) # unit is mintute
 
     ax0 = ax.twinx()
-    #ax0.scatter(x, fpr, marker=marker, color="blue", alpha=0.5, label=f"FPR of {model_type}", zorder=2)
-    ax0.plot(x, fpr, color="blue", ls=ls, label=f"{model_type}", zorder=2)
-    ax0.spines['right'].set_color("blue")
-    ax0.tick_params(axis='y', which='both', colors="blue")
+    #ax0.scatter(x, fpr, marker=marker, color="red", alpha=0.5, label=f"FPR of {model_type}", zorder=2)
+    ax0.plot(x, fpr, color="red", ls=ls, label=f"{model_type}", zorder=2)
+    ax0.spines['right'].set_color("red")
+    ax0.tick_params(axis='y', which='both', colors="red")
     if idx == 1:
-        plt.ylabel("False Positive Rate (FPR)", weight="bold", color="blue")
+        plt.ylabel("False Positive Rate (FPR)", weight="bold", color="red")
 
 
     plt.yscale("log")
@@ -121,6 +121,17 @@ plot_fig(ax, tpr, fpr, model_type, 1)
 station, model_type = "ILL12", "XGBoost"
 f1, falilured_detected, tpr, fpr = feath_data(station, model_type)
 plot_fig(ax, tpr, fpr, model_type, 0)
+from matplotlib.lines import Line2D
+# Create the custom legend with different line styles and colors
+handles = [
+    Line2D([], [], color="black", linestyle='--', label="TPR of Random Forest"),
+    Line2D([], [], color="red", linestyle='--', label="FPR of Random Forest"),
+    Line2D([], [], color="black", linestyle='-', label="TPR of XGBoost"),   # Dashed black line
+    Line2D([], [], color="red", linestyle='-', label="FPR of XGBoost"),     # Dashed red line
+]
+# Add the custom legend to the plot
+labels = ["TPR of Random Forest", "FPR of Random Forest", "TPR of XGBoost", "FPR of XGBoost"]
+plt.legend(handles, labels, loc="lower left", ncol=2)
 
 
 ax = plt.subplot(gs[2])

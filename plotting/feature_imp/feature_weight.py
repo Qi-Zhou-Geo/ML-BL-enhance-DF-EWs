@@ -43,12 +43,12 @@ def visualizeFeatureIMP(y1, y2):
 
     x = np.arange(y1.size)
 
-    markerline1, stemlines1, baseline1 = plt.stem(x, y1, linefmt='b-', markerfmt="bo", label="Random Forest Model")
+    markerline1, stemlines1, baseline1 = plt.stem(x, y1, linefmt='black', markerfmt="ko", label="Random Forest")
     markerline1.set_markersize(6)
     markerline1.set_alpha(0.5)
     baseline1.set_visible(False)
 
-    markerline2, stemlines2, baseline2 = plt.stem(x, y2, linefmt='r-', markerfmt="ro", label="XGBoost Model")
+    markerline2, stemlines2, baseline2 = plt.stem(x, y2, linefmt='red', markerfmt="ro", label="XGBoost")
     markerline2.set_markersize(6)
     markerline2.set_alpha(0.5)
     baseline2.set_visible(False)
