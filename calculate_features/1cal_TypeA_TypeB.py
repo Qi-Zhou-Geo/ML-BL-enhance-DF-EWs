@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-#__modification time__ = 2024-02-23
+#__modification time__ = 2024-11-02
 #__author__ = Qi Zhou, Helmholtz Centre Potsdam - GFZ German Research Centre for Geosciences
 #__find me__ = qi.zhou@gfz-potsdam.de, qi.zhou.geo@gmail.com, https://github.com/Nedasd
 # Please do not distribute this code without the author's permission
 
 
 import os
+import platform
 import sys
 import argparse
 from datetime import datetime
@@ -24,27 +25,39 @@ from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
 
-# Get the absolute path of the parent directory
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# define the parent directory
+if platform.system() == 'Darwin':
+    parent_dir = "/Users/qizhou/#python/#GitHub_saved/G_Transformer"
+elif platform.system() == 'Linux':
+    parent_dir = "/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs"
+else:
+    print(f"check the parent_dir for platform.system() == {platform.system()}")
+# add the parent_dir to the sys
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
+else:
+    pass
 
-# import CONFIG_dir as a global variable
-from config.config_dir import CONFIG_dir
+# you must check 'CONFIG_dir' here
+from config.config_dir import CONFIG_dir, path_mapping
+
 from Type_A_features import *      # import Qi's all features (by *)
 from Type_B_features import *      # import Clement's all features (by *)
-from seismic_data_processing import * # load and process the seismic signals
+from seismic_data_processing import load_seismic_signal # load and process the seismic signals
 
 
-def check_folder(input_year, input_station, input_component):
 
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}"
+def check_folder(seismic_network, input_year, input_station, input_component):
 
-    for folder_name in ["txt", "npy"]:
-        if not os.path.exists(f"{folder_path}/{folder_name}"):
-            os.makedirs(f"{folder_path}/{folder_name}")
-        else:
-            pass
+    folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_station}/{input_component}"
+    CONFIG_dir['txt_path'] = folder_path
+
+    if not os.path.exists(folder_path):
+        os.makedirs(f"{folder_path}/{folder_name}")
+    else:
+        pass
+
+    return
 
 
 def cal_attributes_B(data_array, sps): # the main function is from Clement
@@ -61,7 +74,6 @@ def cal_attributes_A(data_array, ruler=300): # the main function is from Qi
 
 
 def record_data_header(input_year, input_station, input_component, julday):
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
 
     featureName1 = ['time_window_start', 'time_stamps', 'station', 'component',
                     'RappMaxMean', 'RappMaxMedian', 'AsDec', 'KurtoSig','KurtoEnv', 'SkewnessSig','SkewnessEnv',
@@ -79,23 +91,22 @@ def record_data_header(input_year, input_station, input_component, julday):
     featureName1, featureName2 = np.array(featureName1), np.array(featureName2)
 
     # give features title and be careful the file name and path
-    with open(f"{folder_path}{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file1:
+    with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file1:
         np.savetxt(file1, [featureName1], header='', delimiter=',', comments='', fmt='%s')
     # give features title and be careful the file name and path
-    with open(f"{folder_path}{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file2:
+    with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file2:
         np.savetxt(file2, [featureName2], header='', delimiter=',', comments='', fmt='%s')
 
 
 def record_data(input_year, input_station, input_component, arr, feature_type, julday):
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
 
     arr = arr.reshape(1, -1)
     # seismic features to be saved
     if feature_type == "RF":
-        with open(f"{folder_path}{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file:
+        with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file:
             np.savetxt(file, arr, header='', delimiter=',', comments='', fmt='%s')#'%.4f')
     elif feature_type == "BL":
-        with open(f"{folder_path}{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file:
+        with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file:
             np.savetxt(file, arr, header='', delimiter=',', comments='', fmt='%s')#'%.4f')
     else:
         print("error at record_data")
@@ -135,11 +146,10 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
         record_data(input_year, input_station, input_component, arr_RF, "RF", julday)  # write data by custom function
         record_data(input_year, input_station, input_component, arr_BL, "BL", julday)  # write data by custom function
 
-        seismic_array = np.vstack((seismic_array, seismic_data))
+        #seismic_array = np.vstack((seismic_array, seismic_data))
 
     # save the npy every julday
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/npy/"
-    np.save(f"{folder_path}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
+    # np.save(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
 
 
 def cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2):
@@ -198,12 +208,12 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seismic_network", type=str, default=2020, help="check the year")
+    parser.add_argument("--seismic_network", type=str, default="9S", help="check the year")
     parser.add_argument("--input_year", type=int, default=2020, help="check the year")
     parser.add_argument("--input_station", type=str, default="ILL12", help="check the input_station")
     parser.add_argument("--input_component", type=str, default="EHZ", help="check the input_component")
     parser.add_argument("--input_window_size", type=int, default=60, help="check the calculate window size")
-    parser.add_argument("--id", type=int, default=60, help="check the calculate window size")
+    parser.add_argument("--id", type=int, default=60, help="check the julday id")
 
     args = parser.parse_args()
     main(args.seismic_network, args.input_year, args.input_station, args.input_component, args.input_window_size, args.id)

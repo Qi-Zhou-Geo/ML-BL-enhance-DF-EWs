@@ -14,13 +14,22 @@ import argparse
 import numpy as np
 import pandas as pd
 
-# Get the absolute path of the parent directory
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# define the parent directory
+if platform.system() == 'Darwin':
+    parent_dir = "/Users/qizhou/#python/#GitHub_saved/G_Transformer"
+elif platform.system() == 'Linux':
+    parent_dir = "/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs"
+else:
+    print(f"check the parent_dir for platform.system() == {platform.system()}")
+# add the parent_dir to the sys
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
+else:
+    pass
 
-# import CONFIG_dir as a global variable
-from config.config_dir import CONFIG_dir
+# you must check 'CONFIG_dir' here
+from config.config_dir import CONFIG_dir, path_mapping
+
 
 
 def merge_files(input_file_dir, input_files, output_file):
@@ -46,32 +55,32 @@ def merge_files(input_file_dir, input_files, output_file):
                     outfile.write(line)
 
 
-def main(input_year, input_station, input_component, id1, id2):
+def main(seismic_network, input_year, input_station, input_component, id1, id2):
+    folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_station}/{input_component}"
+    CONFIG_dir['txt_path'] = folder_path
 
     # Type A
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
-    input_file_dir = folder_path
-    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_A.txt"
+    input_file_dir = CONFIG_dir['txt_path']
+    output_file = f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_all_A.txt"
     input_files = [f"{input_year}_{input_station}_{input_component}_{i}_A.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/{input_station}/{input_component}/txt/"
-    input_file_dir = folder_path
-    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_station}_{input_component}_all_B.txt"
+    input_file_dir = CONFIG_dir['txt_path']
+    output_file = f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_all_B.txt"
     input_files = [f"{input_year}_{input_station}_{input_component}_{i}_B.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B network
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
-    input_file_dir = folder_path
-    output_file = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}_{input_component}_all_network.txt"
-    input_files = [f"{input_year}_{input_component}_{i}_net.txt" for i in range(id1, id2 + 1)]
-    merge_files(input_file_dir, input_files, output_file)
+    #input_file_dir = CONFIG_dir['txt_path']
+    #output_file = f"{CONFIG_dir['txt_path']}/{input_year}_{input_component}_all_network.txt"
+    #input_files = [f"{input_year}_{input_component}_{i}_net.txt" for i in range(id1, id2 + 1)]
+    #merge_files(input_file_dir, input_files, output_file)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--seismic_network", type=str, default="9S", help="check the year")
     parser.add_argument("--input_year", type=int, default=2020, help="check the year")
     parser.add_argument("--input_station", type=str, default="ILL12", help="check the input_station")
     parser.add_argument("--input_component", type=str, default="EHZ", help="check the input_component")
@@ -79,4 +88,4 @@ if __name__ == "__main__":
     parser.add_argument("--id2", type=int, default=365, help="check the julday_id1")
 
     args = parser.parse_args()
-    main(args.input_year, args.input_station, args.input_component, args.id1, args.id2)
+    main(args.seismic_network, args.input_year, args.input_station, args.input_component, args.id1, args.id2)
