@@ -138,7 +138,7 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
                         f_min=1, f_max=45, remove_sensor_response=True):
 
     # config the snesor parameter based on seismci network code
-    if seismic_network in ["9J", "9S", "CI", "Y7"]:
+    if seismic_network in ["9J", "9S", "Y7", "1A", "CI"]:
         # Seismic data with .xml sensor response
         response_type = "xml"
         sensor_type = None
@@ -158,11 +158,6 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
         # Goulinping 2022 data from LanZhou
         response_type = "direct"
         sensor_type = 1e9 # the amplitude data devide 2 * 10**9 to velocity meter/second
-    elif seismic_network == "1A":
-        # Museum Fire 2021 data from Porter
-        response_type = "simulate"
-        sensor_type = "trillium_compact_120s_754"
-
     elif seismic_network == "LD":
         response_type = "simulate"
     else:

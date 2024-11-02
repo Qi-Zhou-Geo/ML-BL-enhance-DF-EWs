@@ -11,6 +11,7 @@ import os
 import platform
 import sys
 import argparse
+
 from datetime import datetime
 
 import pytz
@@ -50,14 +51,13 @@ from seismic_data_processing import load_seismic_signal # load and process the s
 def check_folder(seismic_network, input_year, input_station, input_component):
 
     folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_station}/{input_component}"
-    CONFIG_dir['txt_path'] = folder_path
+    CONFIG_dir['txt_dir'] = folder_path
+    print(CONFIG_dir['txt_dir'])
 
     if not os.path.exists(folder_path):
-        os.makedirs(f"{folder_path}/{folder_name}")
+        os.makedirs(f"{CONFIG_dir['txt_dir']}")
     else:
         pass
-
-    return
 
 
 def cal_attributes_B(data_array, sps): # the main function is from Clement
@@ -89,12 +89,12 @@ def record_data_header(input_year, input_station, input_component, julday):
                     'max', 'min', 'iqr', 'goodness', 'alpha', 'ks', 'MannWhitneU', 'follow'] # BL features
 
     featureName1, featureName2 = np.array(featureName1), np.array(featureName2)
-
+    print(CONFIG_dir)
     # give features title and be careful the file name and path
-    with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file1:
+    with open(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file1:
         np.savetxt(file1, [featureName1], header='', delimiter=',', comments='', fmt='%s')
     # give features title and be careful the file name and path
-    with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file2:
+    with open(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file2:
         np.savetxt(file2, [featureName2], header='', delimiter=',', comments='', fmt='%s')
 
 
@@ -103,10 +103,10 @@ def record_data(input_year, input_station, input_component, arr, feature_type, j
     arr = arr.reshape(1, -1)
     # seismic features to be saved
     if feature_type == "RF":
-        with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file:
+        with open(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}_B.txt", 'a') as file:
             np.savetxt(file, arr, header='', delimiter=',', comments='', fmt='%s')#'%.4f')
     elif feature_type == "BL":
-        with open(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file:
+        with open(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}_A.txt", 'a') as file:
             np.savetxt(file, arr, header='', delimiter=',', comments='', fmt='%s')#'%.4f')
     else:
         print("error at record_data")
@@ -149,7 +149,7 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
         #seismic_array = np.vstack((seismic_array, seismic_data))
 
     # save the npy every julday
-    # np.save(f"{CONFIG_dir['txt_path']}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
+    # np.save(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
 
 
 def cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2):
@@ -187,7 +187,7 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
 
     # check the folder
     try:
-        check_folder(input_year, input_station, input_component)
+        check_folder(seismic_network, input_year, input_station, input_component)
     except FileExistsError as e:
         print(f"{seismic_network}, {input_year}, {input_station}, {input_component}, {input_window_size}, {id}, \n"
               f"Exception {e}: Directory already exists, ignoring.")
