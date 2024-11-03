@@ -64,19 +64,19 @@ def main(seismic_network, input_year, input_station, input_component, id1, id2):
     # Type A
     input_file_dir = CONFIG_dir['txt_dir']
     output_file = f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_all_A.txt"
-    input_files = [f"{input_year}_{input_station}_{input_component}_{i}_A.txt" for i in range(id1, id2 + 1)]
+    input_files = [f"{input_year}_{input_station}_{input_component}_{str(i).zfill(3)}_A.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B
     input_file_dir = CONFIG_dir['txt_dir']
     output_file = f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_all_B.txt"
-    input_files = [f"{input_year}_{input_station}_{input_component}_{i}_B.txt" for i in range(id1, id2 + 1)]
+    input_files = [f"{input_year}_{input_station}_{input_component}_{str(i).zfill(3)}_B.txt" for i in range(id1, id2 + 1)]
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B network
     #input_file_dir = CONFIG_dir['txt_dir']
     #output_file = f"{CONFIG_dir['txt_dir']}/{input_year}_{input_component}_all_network.txt"
-    #input_files = [f"{input_year}_{input_component}_{i}_net.txt" for i in range(id1, id2 + 1)]
+    #input_files = [f"{input_year}_{input_component}_{str(i).zfill(3)}_net.txt" for i in range(id1, id2 + 1)]
     #merge_files(input_file_dir, input_files, output_file)
 
 
