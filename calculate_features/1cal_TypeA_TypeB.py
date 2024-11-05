@@ -167,6 +167,20 @@ def cal_loop(seismic_network, input_year, input_station, input_component, input_
 
         loop_time_step(st, input_year, input_station, input_component, input_window_size, julday)
 
+def cal_loop_seg(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2):
+
+    julday = str(id1).zfill(3)
+    data_start = UTCDateTime(year=input_year, julday=julday)
+    data_end = data_start + 24 * 3600 - 1 # only one day's data available
+
+    st = load_seismic_signal(seismic_network, input_station, input_component, data_start, data_end)
+
+    # write the seismic features header
+    record_data_header(input_year, input_station, input_component, julday)
+
+    loop_time_step(st, input_year, input_station, input_component, input_window_size, julday)
+
+
 
 def main(seismic_network, input_year, input_station, input_component, input_window_size, id):
     '''
@@ -198,9 +212,11 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
     #map_start_julday = {2013:147, 2014:91,  2017_1:140, 2018-2019:145, 2019:145, 2020:152}
     #map_end_julday   = {2013:245, 2014:273, 2017_1:183, 2018-2019:250, 2019:250, 2020:250}
     #id1, id2 = map_start_julday.get(input_year),  map_end_julday.get(input_year)
-
     id1, id2 = id, id + 1
-    cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2)
+    if seismic_network in ["CC"]:
+        cal_loop_seg(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2)
+    else:
+        cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2)
 
 
     print(f"End Job {job_id}: {input_year}, {input_station}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))

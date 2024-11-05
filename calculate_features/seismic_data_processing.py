@@ -200,7 +200,7 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
         pass
 
     st.filter("bandpass", freqmin=f_min, freqmax=f_max)
-    st = st.trim(starttime=d1, endtime=d2, nearest_sample=False)
+    st.trim(starttime=d1, endtime=d2, nearest_sample=False)
     st.detrend('linear')
     st.detrend('demean')
 
