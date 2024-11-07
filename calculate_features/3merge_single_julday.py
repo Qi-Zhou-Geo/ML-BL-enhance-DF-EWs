@@ -16,9 +16,9 @@ import argparse
 import numpy as np
 import pandas as pd
 
-# define the parent directory
+# <editor-fold desc="define the parent directory">
 if platform.system() == 'Darwin':
-    parent_dir = "/Users/qizhou/#python/#GitHub_saved/G_Transformer"
+    parent_dir = "/Users/qizhou/#python/#GitHub_saved/ML-BL-enhance-DF-EWs"
 elif platform.system() == 'Linux':
     parent_dir = "/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs"
 else:
@@ -28,10 +28,11 @@ if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 else:
     pass
+# </editor-fold>
 
-# you must check 'CONFIG_dir' here
+
+# import the custom functions
 from config.config_dir import CONFIG_dir, path_mapping
-
 
 
 def merge_files(input_file_dir, input_files, output_file):
@@ -74,10 +75,10 @@ def main(seismic_network, input_year, input_station, input_component, id1, id2):
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B network
-    #input_file_dir = CONFIG_dir['txt_dir']
-    #output_file = f"{CONFIG_dir['txt_dir']}/{input_year}_{input_component}_all_network.txt"
-    #input_files = [f"{input_year}_{input_component}_{str(i).zfill(3)}_net.txt" for i in range(id1, id2 + 1)]
-    #merge_files(input_file_dir, input_files, output_file)
+    input_file_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_component}_net"
+    output_file = f"{input_file_dir}/{input_year}_{input_component}_all_network.txt"
+    input_files = [f"{input_year}_{input_component}_{str(i).zfill(3)}_net.txt" for i in range(id1, id2 + 1)]
+    merge_files(input_file_dir, input_files, output_file)
 
 
 if __name__ == "__main__":

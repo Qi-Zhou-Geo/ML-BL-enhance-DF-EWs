@@ -10,6 +10,7 @@
 import os
 import platform
 import sys
+
 import argparse
 
 from datetime import datetime
@@ -26,9 +27,9 @@ from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
 
-# define the parent directory
+# <editor-fold desc="define the parent directory">
 if platform.system() == 'Darwin':
-    parent_dir = "/Users/qizhou/#python/#GitHub_saved/G_Transformer"
+    parent_dir = "/Users/qizhou/#python/#GitHub_saved/ML-BL-enhance-DF-EWs"
 elif platform.system() == 'Linux':
     parent_dir = "/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs"
 else:
@@ -38,8 +39,10 @@ if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 else:
     pass
+# </editor-fold>
 
-# you must check 'CONFIG_dir' here
+
+# import the custom functions
 from config.config_dir import CONFIG_dir, path_mapping
 
 from Type_A_features import *      # import Qi's all features (by *)
@@ -52,12 +55,11 @@ def check_folder(seismic_network, input_year, input_station, input_component):
 
     folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_station}/{input_component}"
     CONFIG_dir['txt_dir'] = folder_path
-    print(CONFIG_dir['txt_dir'])
+    os.makedirs(f"{CONFIG_dir['txt_dir']}", exist_ok=True)
 
-    if not os.path.exists(folder_path):
-        os.makedirs(f"{CONFIG_dir['txt_dir']}")
-    else:
-        pass
+    folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_station}/{input_component}/npy"
+    CONFIG_dir['npy_dir'] = folder_path
+    os.makedirs(f"{CONFIG_dir['npy_dir']}", exist_ok=True)
 
 
 def cal_attributes_B(data_array, sps): # the main function is from Clement
@@ -125,7 +127,7 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
 
         # float timestamps, mapping station and component
         time = datetime.fromtimestamp(d1.timestamp, tz=pytz.utc)
-        time = time.strftime('%Y-%m-%d %H:%M:%S')
+        time = time.strftime("%Y-%m-%dT%H:%M:%S")
         id = np.array([time, d1.timestamp, input_station, input_component])
 
         tr = st.copy()
@@ -146,10 +148,10 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
         record_data(input_year, input_station, input_component, arr_RF, "RF", julday)  # write data by custom function
         record_data(input_year, input_station, input_component, arr_BL, "BL", julday)  # write data by custom function
 
-        #seismic_array = np.vstack((seismic_array, seismic_data))
+        seismic_array = np.vstack((seismic_array, seismic_data))
 
     # save the npy every julday
-    # np.save(f"{CONFIG_dir['txt_dir']}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
+    np.save(f"{CONFIG_dir['npy_dir']}/{input_year}_{input_station}_{input_component}_{julday}.npy", seismic_array)
 
 
 def cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2):
@@ -197,7 +199,7 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
     '''
 
     job_id = int(os.environ["SLURM_ARRAY_TASK_ID"])
-    print(f"Start Job {job_id}: {input_year}, {input_station}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
+    print(f"Start Job {job_id}: {input_year}, {input_station}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
     # check the folder
     try:
@@ -213,13 +215,13 @@ def main(seismic_network, input_year, input_station, input_component, input_wind
     #map_end_julday   = {2013:245, 2014:273, 2017_1:183, 2018-2019:250, 2019:250, 2020:250}
     #id1, id2 = map_start_julday.get(input_year),  map_end_julday.get(input_year)
     id1, id2 = id, id + 1
-    if seismic_network in ["CC"]:
+    if seismic_network in ["CC"]: # data segment
         cal_loop_seg(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2)
     else:
         cal_loop(seismic_network, input_year, input_station, input_component, input_window_size, id1, id2)
 
 
-    print(f"End Job {job_id}: {input_year}, {input_station}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print(f"End Job {job_id}: {input_year}, {input_station}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
 
 if __name__ == "__main__":

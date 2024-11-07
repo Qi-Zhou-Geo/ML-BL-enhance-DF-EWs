@@ -7,12 +7,11 @@
 # Please do not distribute this code without the author's permission
 
 import os
-import sys
 import argparse
+
 from datetime import datetime
 
 import pytz
-import platform
 
 import numpy as np
 import pandas as pd
@@ -25,23 +24,33 @@ from scipy.stats import kurtosis, skew, iqr, wasserstein_distance
 from obspy import read, Stream, read_inventory, signal
 from obspy.core import UTCDateTime # default is UTC+0 time zone
 
-# Get the absolute path of the parent directory
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# <editor-fold desc="define the parent directory">
+import platform
+if platform.system() == 'Darwin':
+    parent_dir = "/Users/qizhou/#python/#GitHub_saved/ML-BL-enhance-DF-EWs"
+elif platform.system() == 'Linux':
+    parent_dir = "/home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs"
+else:
+    print(f"check the parent_dir for platform.system() == {platform.system()}")
+# add the parent_dir to the sys
+import sys
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
+else:
+    pass
+# </editor-fold>
 
-# import CONFIG_dir as a global variable
-from config.config_dir import CONFIG_dir
+
+# import the custom functions
+from config.config_dir import CONFIG_dir, path_mapping
 
 
-def check_folder(input_year, input_component):
+def check_folder(seismic_network, input_year, input_station, input_component):
 
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
-
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    else:
-        pass
+    folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_component}_net"
+    CONFIG_dir['net_txt_dir'] = folder_path
+    os.makedirs(f"{CONFIG_dir['txt_dir']}", exist_ok=True)
 
 
 def rms_network(rms1, rms2, rms3, iqr1, iqr2, iqr3):
@@ -137,15 +146,11 @@ def record_data_header(input_year, input_component, julday):
 
 
     # give features title and be careful the file name and path
-    folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
-
-    with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
+    with open(f"{CONFIG_dir['net_txt_dir']}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
         np.savetxt(file, [feature_names], header='', delimiter=',', comments='', fmt='%s')
 
 
-def run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list):
-    folder_path_npy =f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/"
-
+def run_cal_loop(seismic_network, input_year, input_component, input_window_size, id1, id2, station_list):
 
     for julday in range(id1, id2):  # 91 = 1st of May to 305=31 of Nov.
         d = UTCDateTime(year=input_year, julday=julday)  # the start day, e.g.2014-07-12 00:00:00
@@ -155,13 +160,16 @@ def run_cal_loop(input_year, input_component, input_window_size, id1, id2, stati
         record_data_header(input_year, input_component, julday)
 
         # load data then input to cal_loop
-        np_dir = f"{folder_path_npy}{station_list[0]}/{input_component}/npy/"# set np_dir
-        dataILL18 = np.load(f"{np_dir}{input_year}_{station_list[0]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
+                 f"{input_year}/{station_list[0]}/{input_component}/npy" # set np_dir
+        dataILL18 = np.load(f"{np_dir}/{input_year}_{station_list[0]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
-        np_dir = f"{folder_path_npy}{station_list[1]}/{input_component}/npy/"# set np_dir
+        np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
+                 f"{input_year}/{station_list[1]}/{input_component}/npy"  # set np_dir
         dataILL12 = np.load(f"{np_dir}{input_year}_{station_list[1]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
-        np_dir = f"{folder_path_npy}{station_list[2]}/{input_component}/npy/"# set np_dir
+        np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
+                 f"{input_year}/{station_list[2]}/{input_component}/npy"  # set np_dir
         dataILL13 = np.load(f"{np_dir}{input_year}_{station_list[2]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
         ####################################
@@ -198,7 +206,7 @@ def run_cal_loop(input_year, input_component, input_window_size, id1, id2, stati
 
             time_stamps = float(d + (step) * input_window_size)
             time = datetime.fromtimestamp(time_stamps, tz=pytz.utc)
-            time = time.strftime('%Y-%m-%d %H:%M:%S')
+            time = time.strftime('%Y-%m-%dT%H:%M:%S')
 
             mean_coherence = np.mean(coherence_list)  # coherence related network features
             max_coherence = np.max(coherence_list)
@@ -216,17 +224,16 @@ def run_cal_loop(input_year, input_component, input_window_size, id1, id2, stati
                             mean_lagTime, std_lagTime,
                             mean_wd, std_wd))
             # do not give header here ( see [feature_names] )
-            folder_path = f"{CONFIG_dir['output_dir']}/data_output/seismic_feature/{input_year}/network/{input_component}"
-            with open(f"{folder_path}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
+            with open(f"{CONFIG_dir['net_txt_dir']}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
                 np.savetxt(file, arr.reshape(1, -1), header='', delimiter=',', comments='', fmt='%s')#fmt_list)
 
 
-def main(input_year, input_component, input_window_size, id, station_list):  # Update the global variables with the values from command-line arguments
-    print(f"Start Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
+def main(seismic_network, input_year, input_component, input_window_size, id, station_list):  # Update the global variables with the values from command-line arguments
+    print(f"Start Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
     # check the folder
     try:
-        check_folder(input_year, input_component)
+        check_folder(seismic_network, input_year, None, input_component)
     except FileExistsError as e:
         print(f"{input_year}, {input_component}, {input_window_size}, {id}, \n"
               f"Exception {e}: Directory already exists, ignoring.")
@@ -243,19 +250,19 @@ def main(input_year, input_component, input_window_size, id, station_list):  # U
         pass
 
     id1, id2 = id, id + 1
-    run_cal_loop(input_year, input_component, input_window_size, id1, id2, station_list)  # run the loop
+    run_cal_loop(seismic_network, input_year, input_component, input_window_size, id1, id2, station_list)
 
-    print(f"End Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
+    print(f"End Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--seismic_network", type=str, default="9S", help="check the year")
     parser.add_argument("--input_year", type=int, default=2020, help="cal_year")
+    parser.add_argument("--station_list", nargs='+', type=str, help="list of stations")
     parser.add_argument("--input_component", type=str, default="ILL12", help="check the input_station")
     parser.add_argument("--input_window_size", type=int, default=60, help="check the calculate window size")
     parser.add_argument("--id", type=int, default=60, help="check the calculate window size")
-    parser.add_argument("--station_list", nargs='+', type=str, help="list of stations")
 
     args = parser.parse_args()
-    main(args.input_year, args.input_component, args.input_window_size, args.id, args.station_list)
-
+    main(args.seismic_network, args.input_year, args.station_list, args.input_component, args.input_window_size, args.id)
