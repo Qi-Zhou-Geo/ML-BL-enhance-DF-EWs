@@ -7,6 +7,7 @@
 # Please do not distribute this code without the author's permission
 
 import os
+import shutil
 import argparse
 
 from datetime import datetime
@@ -50,8 +51,18 @@ def check_folder(seismic_network, input_year, input_station, input_component):
 
     folder_path = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_component}_net"
     CONFIG_dir['net_txt_dir'] = folder_path
-    os.makedirs(f"{CONFIG_dir['txt_dir']}", exist_ok=True)
+    os.makedirs(f"{CONFIG_dir['net_txt_dir']}", exist_ok=True)
 
+def delete_folder(seismic_network, station_list, input_year, input_component):
+
+    for station in station_list:
+        np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
+                 f"{input_year}/{station}/{input_component}/npy"  # set np_dir
+
+        try:
+            shutil.rmtree(np_dir)
+        except Exception as e:
+            print(e)
 
 def rms_network(rms1, rms2, rms3, iqr1, iqr2, iqr3):
     # rms1, rms2, rms3 is from ILL18(8.0), ILL12(2.0), ILL13(3.0)
@@ -146,7 +157,7 @@ def record_data_header(input_year, input_component, julday):
 
 
     # give features title and be careful the file name and path
-    with open(f"{CONFIG_dir['net_txt_dir']}/{input_year}_{input_component}_{julday}_net.txt", 'a') as file:
+    with open(f"{CONFIG_dir['net_txt_dir']}/{input_year}_{input_component}_{julday}_net.txt", 'w') as file:
         np.savetxt(file, [feature_names], header='', delimiter=',', comments='', fmt='%s')
 
 
@@ -166,11 +177,11 @@ def run_cal_loop(seismic_network, input_year, input_component, input_window_size
 
         np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
                  f"{input_year}/{station_list[1]}/{input_component}/npy"  # set np_dir
-        dataILL12 = np.load(f"{np_dir}{input_year}_{station_list[1]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        dataILL12 = np.load(f"{np_dir}/{input_year}_{station_list[1]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
         np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
                  f"{input_year}/{station_list[2]}/{input_component}/npy"  # set np_dir
-        dataILL13 = np.load(f"{np_dir}{input_year}_{station_list[2]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
+        dataILL13 = np.load(f"{np_dir}/{input_year}_{station_list[2]}_{input_component}_{julday}.npy")  # 3identifiers + rms + 12001data
 
         ####################################
 
@@ -228,7 +239,7 @@ def run_cal_loop(seismic_network, input_year, input_component, input_window_size
                 np.savetxt(file, arr.reshape(1, -1), header='', delimiter=',', comments='', fmt='%s')#fmt_list)
 
 
-def main(seismic_network, input_year, input_component, input_window_size, id, station_list):  # Update the global variables with the values from command-line arguments
+def main(seismic_network, input_year, station_list, input_component, input_window_size, id):  # Update the global variables with the values from command-line arguments
     print(f"Start Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
     # check the folder
@@ -252,11 +263,15 @@ def main(seismic_network, input_year, input_component, input_window_size, id, st
     id1, id2 = id, id + 1
     run_cal_loop(seismic_network, input_year, input_component, input_window_size, id1, id2, station_list)
 
+    # remove the npy file to unload the space
+    delete_folder(seismic_network, station_list, input_year, input_component)
+
     print(f"End Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
     parser.add_argument("--seismic_network", type=str, default="9S", help="check the year")
     parser.add_argument("--input_year", type=int, default=2020, help="cal_year")
     parser.add_argument("--station_list", nargs='+', type=str, help="list of stations")
