@@ -7,7 +7,6 @@
 # Please do not distribute this code without the author's permission
 
 import os
-import shutil
 import argparse
 
 from datetime import datetime
@@ -53,16 +52,6 @@ def check_folder(seismic_network, input_year, input_station, input_component):
     CONFIG_dir['net_txt_dir'] = folder_path
     os.makedirs(f"{CONFIG_dir['net_txt_dir']}", exist_ok=True)
 
-def delete_folder(seismic_network, station_list, input_year, input_component):
-
-    for station in station_list:
-        np_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/" \
-                 f"{input_year}/{station}/{input_component}/npy"  # set np_dir
-
-        try:
-            shutil.rmtree(np_dir)
-        except Exception as e:
-            print(e)
 
 def rms_network(rms1, rms2, rms3, iqr1, iqr2, iqr3):
     # rms1, rms2, rms3 is from ILL18(8.0), ILL12(2.0), ILL13(3.0)
@@ -263,8 +252,6 @@ def main(seismic_network, input_year, station_list, input_component, input_windo
     id1, id2 = id, id + 1
     run_cal_loop(seismic_network, input_year, input_component, input_window_size, id1, id2, station_list)
 
-    # remove the npy file to unload the space
-    delete_folder(seismic_network, station_list, input_year, input_component)
 
     print(f"End Job: {input_year}, {input_component}: ", datetime.now().strftime("%Y-%m-%dT%H:%M:%S") )
 
