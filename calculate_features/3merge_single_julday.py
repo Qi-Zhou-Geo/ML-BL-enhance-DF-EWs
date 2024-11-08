@@ -87,10 +87,13 @@ def main(seismic_network, input_year, input_station, input_component, id1, id2):
     merge_files(input_file_dir, input_files, output_file)
 
     # Type B network
-    input_file_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_component}_net"
-    output_file = f"{input_file_dir}/{input_year}_{input_component}_all_network.txt"
-    input_files = [f"{input_year}_{input_component}_{str(i).zfill(3)}_net.txt" for i in range(id1, id2 + 1)]
-    merge_files(input_file_dir, input_files, output_file)
+    if seismic_network in ["9S", "9J"]:
+        input_file_dir = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}/{input_year}/{input_component}_net"
+        output_file = f"{input_file_dir}/{input_year}_{input_component}_all_network.txt"
+        input_files = [f"{input_year}_{input_component}_{str(i).zfill(3)}_net.txt" for i in range(id1, id2 + 1)]
+        merge_files(input_file_dir, input_files, output_file)
+    else:
+        pass
 
     # remove the npy file to unload the space
     delete_folder(seismic_network, input_station, input_year, input_component)
