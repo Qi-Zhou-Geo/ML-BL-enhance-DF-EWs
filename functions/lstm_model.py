@@ -23,6 +23,9 @@ if parent_dir not in sys.path:
 # import CONFIG_dir as a global variable
 from config.config_dir import CONFIG_dir
 
+import torch
+import torch.nn as nn
+
 
 class lstm_classifier(nn.Module):
     def __init__(self, feature_size, device, dropout=0.25, num_hidden=512, num_layers=4, output_dim=2):

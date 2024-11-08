@@ -37,5 +37,5 @@ srun python /home/qizhou/3paper/2AGU_revise/ML-BL-enhance-DF-EWs/calculate_featu
     --input_year "$current_parameters1" \
     --input_station "$current_parameters2" \
     --input_component "$current_parameters3" \
-    --id1 152 \
+    --id1 150 \
     --id2 250

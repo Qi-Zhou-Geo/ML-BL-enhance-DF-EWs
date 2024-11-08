@@ -35,29 +35,18 @@ else:
 from config.config_dir import CONFIG_dir, path_mapping
 
 
-
-
-def create_label(seismic_network, input_year, input_station, input_component):
+def create_label(seismic_network, input_year, input_station, input_component, usecols):
 
     folder_path_in = f"{CONFIG_dir['feature_output_dir']}/{path_mapping(seismic_network)}" \
                      f"/{input_year}/{input_station}/{input_component}"
     folder_path_out = f"{CONFIG_dir['label_output_dir']}/{path_mapping(seismic_network)}" \
                       f"/{input_year}/{input_station}/{input_component}"
 
-    if input_station == "ILL08" or input_station == "ILL18":
-        usecols = [2, 3]
-    elif input_station == "ILL02" or input_station == "ILL12":
-        usecols = [5, 6]
-    elif input_station == "ILL03" or input_station == "ILL13":
-        usecols = [7, 8]
-    else:
-        print(f"check the input station: {input_station}")
-
     df0 = pd.read_csv(f"{folder_path_in}/{input_year}_{input_station}_{input_component}_all_A.txt", header=0)
 
     folder_path = "/storage/vast-gfz-hpc-01/home/qizhou/3paper/2AGU_revise" \
                   "/ML-BL-enhance-DF-EWs/data_input/manually_labeled_DF"
-    df1 = pd.read_csv(f"{folder_path}/{input_year}_DF.txt", header=0, usecols=usecols)
+    df1 = pd.read_csv(f"{folder_path}/{input_year}_DF_{seismic_network}.txt", header=0, usecols=usecols)
 
     df_label = df0.iloc[:, :2]
     df_label["label_0nonDF_1DF"] = 0 # non-debris flow event with label 0
@@ -77,9 +66,9 @@ def create_label(seismic_network, input_year, input_station, input_component):
 
     print(f"{input_year}_{input_station}_{input_component}, num_label1={sum(df_label.iloc[:, -1])}, done")
 
-def main(seismic_network, input_year, input_station, input_componen):
+def main(seismic_network, input_year, input_station, input_component, usecols):
 
-    create_label(seismic_network, input_year, input_station, input_componen)
+    create_label(seismic_network, input_year, input_station, input_component, usecols)
 
 
 if __name__ == "__main__":
@@ -89,8 +78,9 @@ if __name__ == "__main__":
     parser.add_argument("--input_year", default=2020, type=int)
     parser.add_argument("--input_station", default="C", type=str)
     parser.add_argument("--input_component", default="EHZ", type=str)
+    parser.add_argument("--usecols", nargs='+', type=int, help="list of stations")
 
     args = parser.parse_args()
 
-    main(args.seismic_network, args.input_year, args.input_station, args.input_component)
+    main(args.seismic_network, args.input_year, args.input_station, args.input_component, args.usecols)
 

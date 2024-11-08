@@ -113,7 +113,7 @@ def visualize_confusion_matrix(obs_y_label, pre_obs_y_label_label, training_or_t
 
     f1 = f1_score(obs_y_label, pre_obs_y_label_label, average='binary', zero_division=0)
 
-    fig = plt.figure(figsize=(4.5, 4.5))
+    fig = plt.figure(figsize=(3, 3))
     sns.heatmap(cm_df_raw, xticklabels=1, yticklabels=1, annot_kws={'color': 'black', 'fontsize': 6},
                 annot=True, fmt='.0f', square=True, cmap="Blues", cbar=False)
 
