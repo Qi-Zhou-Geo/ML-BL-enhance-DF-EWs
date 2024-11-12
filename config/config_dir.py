@@ -48,14 +48,16 @@ def path_mapping(seismic_network):
                "1A": "USA/Museum_Fire",
                "Y7": "USA/Chalk_Cliffs",
                # Chinese data
-               "DC": "CN/Dongchuan",
-               "MJ": "CN/MinJiang",
-               "CC": "CN/Goulinping"
+               "DC": "AS/Dongchuan",
+               "MJ": "AS/MinJiang",
+               "CC": "AS/Goulinping",
+               "XF": "AS/Ramche"
                }
 
     dir = mapping.get(seismic_network, "check function path_mapping")
 
     return dir
+
 
 
 # please keep in mind this file I/O directory
