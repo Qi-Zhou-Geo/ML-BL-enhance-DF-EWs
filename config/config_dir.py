@@ -51,7 +51,9 @@ def path_mapping(seismic_network):
                "DC": "AS/Dongchuan",
                "MJ": "AS/MinJiang",
                "CC": "AS/Goulinping",
-               "XF": "AS/Ramche"
+               "XF": "AS/Ramche",
+               # New Zealand data
+               "MR": "OC/Ruapehu",
                }
 
     dir = mapping.get(seismic_network, "check function path_mapping")
