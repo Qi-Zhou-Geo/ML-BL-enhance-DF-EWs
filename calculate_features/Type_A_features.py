@@ -6,6 +6,7 @@
 #__find me__ = qi.zhou@gfz-potsdam.de, qi.zhou.geo@gmail.com, https://github.com/Nedasd
 # Please do not distribute this code without the author's permission
 
+import math
 import numpy as np
 import pandas as pd
 from scipy.stats import iqr, ks_2samp, chi2_contingency, mannwhitneyu
@@ -14,6 +15,18 @@ from scipy.stats import iqr, ks_2samp, chi2_contingency, mannwhitneyu
 # the BL is based on the following refrence
 # Sambridge, Malcolm, Hrvoje Tkalčić, and A. Jackson. "Benford's law in the natural sciences." Geophysical research letters 37.22 (2010).
 # Zhou, Qi, et al. "Benford's law as mass movement detector in seismic signals." (2023).
+
+def get_num_magnitude(number):
+
+    if number == 0:
+        magnitude = 0
+    else:
+        # positive, how many 0 in the first digit
+        # negative, how many 0 in front of the first digit
+        magnitude = math.floor(math.log10(abs(number)))
+
+    return magnitude
+
 def calBL_feature(data, ruler):
     '''
     Parameters

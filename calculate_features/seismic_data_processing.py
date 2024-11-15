@@ -138,7 +138,7 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
                         f_min=1, f_max=45, remove_sensor_response=True):
 
     # config the snesor parameter based on seismci network code
-    if seismic_network in ["9J", "9S", "Y7", "1A", "CI", "XF"]:
+    if seismic_network in ["9J", "9S", "Y7", "1A", "CI", "XF", "XN"]:
         # Seismic data with .xml sensor response
         response_type = "xml"
         sensor_type = None

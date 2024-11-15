@@ -68,8 +68,8 @@ def cal_attributes_B(data_array, sps): # the main function is from Clement
     feature_array = features[1:]# leave features[0]=event_duration
     return feature_array # 59 features
 
-def cal_attributes_A(data_array, ruler=300): # the main function is from Qi
-    data_array_nm = data_array * 1e9 # converty m/s to nm/s
+def cal_attributes_A(data_array, scaling=1e9, ruler=300): # the main function is from Qi
+    data_array_nm = data_array * scaling # converty m/s to nm/s
     feature_array = calBL_feature(data_array_nm, ruler)
 
     return feature_array # 17 features
@@ -135,7 +135,7 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
             tr.trim(starttime=d1, endtime=d2, nearest_sample=False)
             seismic_data = tr[0].data[:sps * input_window_size]
             type_B_arr = cal_attributes_B(data_array=seismic_data, sps=sps)
-            type_A_arr = cal_attributes_A(data_array=seismic_data)
+            type_A_arr = cal_attributes_A(data_array=seismic_data, scaling=scaling, ruler=0)
         except Exception as e:  # NOT hava any data in this time domain d1 to d2
             seismic_data = np.full(input_window_size * sps, np.nan)
             type_B_arr = np.full(59, np.nan)

@@ -52,6 +52,7 @@ def path_mapping(seismic_network):
                "MJ": "AS/MinJiang",
                "CC": "AS/Goulinping",
                "XF": "AS/Ramche",
+               "XN": "AS/Bothekoshi",
                # New Zealand data
                "MR": "OC/Ruapehu",
                }
