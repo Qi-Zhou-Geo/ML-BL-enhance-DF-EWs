@@ -137,7 +137,7 @@ def cal_loop(seismic_network, input_year, julday_id, input_station, input_compon
         julday_id:
         input_station:
         input_component:
-        length:
+        length: unit is hour
 
     Returns:
 
