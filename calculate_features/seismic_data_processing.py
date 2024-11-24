@@ -154,7 +154,7 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
         elif station in ["FTB1", "FTB2"]:
             response_type = "simulate" # no sensor response
             sensor_type = "paz_3D_NoiseScope" #2e9 # the amplitude data devide 2 * 10**9 to velocity meter/second
-    elif seismic_network in ["CC"]:
+    elif seismic_network in ["CC", "MR"]:
         # Goulinping 2022 data from LanZhou
         response_type = "direct"
         sensor_type = 1e9 # the amplitude data devide 2 * 10**9 to velocity meter/second

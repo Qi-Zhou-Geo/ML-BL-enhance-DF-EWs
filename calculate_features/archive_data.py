@@ -43,7 +43,7 @@ def save_hdf5(file_dir, file_name, dataset_name, dataset, metadata, mode="a"):
                 dataset.attrs[key] = value
 
 
-def load_hdf5(file_dir, file_name, dataset_name, dataset=None, metadata=None, mode="r"):
+def load_hdf5(file_dir, file_name, dataset_name, mode="r"):
     '''
 
     Args:
