@@ -71,7 +71,7 @@ def denoise(tr, f_min, f_max, x_window_size=20, window_ovelap=0, denoising_proce
         tr:
         f_min:
         f_max:
-        x_window_size:
+        x_window_size: unit is second
         window_ovelap:
         denoising_processing_method:
 
