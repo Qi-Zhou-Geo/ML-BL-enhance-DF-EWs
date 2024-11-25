@@ -39,7 +39,7 @@ def manually_remove_sensor_response(trace, sensor_type):
     # reference,
     # https://www.gfz-potsdam.de/en/section/geophysical-imaging/infrastructure/geophysical-instrument-pool-potsdam-gipp/pool-components/clipp-werte
     # https://www.gfz-potsdam.de/en/section/geophysical-imaging/infrastructure/geophysical-instrument-pool-potsdam-gipp/pool-components/poles-and-zeros/trillium-c-120s
-    # if you do NOT use the cube logger, the "Normalization factor" is 'gain'
+    # if you do NOT use the cube logger, the "Normalization factor" is "gain"
     # if you do use the cube logger, refer link at "Sensitivity and clip values"
 
     paz_trillium_compact_120s_754 = {
@@ -61,7 +61,7 @@ def manually_remove_sensor_response(trace, sensor_type):
                   (-4900 - 4700j),
                   (-6900 + 0j),
                   (-15000 + 0j)],
-
+        # 'gain' also known as (A0 normalization factor)
         'gain': 4.34493e17, # this is
         'sensitivity': 3.0172e8
     }
@@ -72,7 +72,7 @@ def manually_remove_sensor_response(trace, sensor_type):
 
         'poles': [(-22.211059 + 22.217768j),
                   (-22.211059 - 22.217768j)],
-
+        # 'gain' also known as (A0 normalization factor)
         'gain': 76.7,
         'sensitivity': 6.40174e4
     }
@@ -83,8 +83,9 @@ def manually_remove_sensor_response(trace, sensor_type):
 
         'poles': [(-19.78 + 20.20j),
                   (-19.78 - 20.20j)],
-
-        'gain': 16, # P_AMPL gain is 16 of Prof. Dr. Shuai Li 2023 data
+        #'gain' also known as (A0 normalization factor)
+        'gain': 1,
+        # # P_AMPL gain is 16 for 2023 and 2024 data
         'sensitivity': 6.5574e7
     }
 
@@ -94,8 +95,9 @@ def manually_remove_sensor_response(trace, sensor_type):
 
         'poles': [(-19.78 + 20.20j),
                   (-19.78 - 20.20j)],
-
-        'gain': 32, # P_AMPL gain is 32 of Prof. Dr. Yan Yan 2022 data
+        # 'gain' also known as (A0 normalization factor)
+        'gain': 1,
+        # P_AMPL gain is 32 of Prof. Dr. Yan Yan 2022 data
         'sensitivity': 1.3115e8
     }
 
@@ -127,8 +129,11 @@ def manually_remove_sensor_response(trace, sensor_type):
         print(f"please check the sensor_type: {sensor_type}")
 
 
-    corrected_data = simulate_seismometer(trace[0].data, trace[0].stats.sampling_rate,
-                                          paz_remove=paz, remove_sensitivity=True)
+    corrected_data = simulate_seismometer(data=trace[0].data,
+                                          samp_rate=trace[0].stats.sampling_rate,
+                                          paz_remove=paz,
+                                          paz_simulate=None,
+                                          remove_sensitivity=True)
     corrected_trace[0].data = corrected_data
 
     return corrected_trace
@@ -205,5 +210,4 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
     st.detrend('demean')
 
     return st
-
 
