@@ -135,7 +135,7 @@ def loop_time_step(st, input_year, input_station, input_component, input_window_
             tr.trim(starttime=d1, endtime=d2, nearest_sample=False)
             seismic_data = tr[0].data[:sps * input_window_size]
             type_B_arr = cal_attributes_B(data_array=seismic_data, sps=sps)
-            type_A_arr = cal_attributes_A(data_array=seismic_data, scaling=scaling, ruler=0)
+            type_A_arr = cal_attributes_A(data_array=seismic_data)
         except Exception as e:  # NOT hava any data in this time domain d1 to d2
             seismic_data = np.full(input_window_size * sps, np.nan)
             type_B_arr = np.full(59, np.nan)
