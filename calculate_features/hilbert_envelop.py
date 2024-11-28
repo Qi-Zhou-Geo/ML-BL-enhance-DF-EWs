@@ -15,16 +15,30 @@ from obspy.core import UTCDateTime # default is UTC+0 time zone
 
 import matplotlib.pyplot as plt
 
-def create_trace(data, low_sampling_rate, time_start, network, station):
+def create_trace(data, low_sampling_rate, ref_st):
+    '''
+    create Obspy st
+    Args:
+        data: numpy 1D data array, unit by m/s or other
+        low_sampling_rate: int or float, unit by Hz
+        ref_st: obspy st, suppose the st1 = read(), here ref_st = st1[0]
 
+    Returns:
+        created Obspy st, as ref_st structure
+
+    '''
     trace = Trace(data=data)
     trace.stats.sampling_rate = low_sampling_rate
-    trace.stats.starttime = UTCDateTime(time_start)
-    trace.stats.network = network
-    trace.stats.station = station
 
-    return trace
+    # get the ref information
+    trace.stats.network = ref_st.stats.network
+    trace.stats.station = ref_st.stats.station
+    trace.stats.starttime = ref_st.stats.starttime
+    trace.stats.channel = ref_st.stats.channel
 
+    st = Stream([trace])
+
+    return st
 
 def envelop(signal):
     '''
