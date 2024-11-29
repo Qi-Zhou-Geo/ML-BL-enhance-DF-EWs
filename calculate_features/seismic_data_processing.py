@@ -162,7 +162,7 @@ def load_seismic_signal(seismic_network, station, component, data_start, data_en
     elif seismic_network in ["CC", "MR"]:
         # Goulinping 2022 data from LanZhou
         response_type = "direct"
-        sensor_type = 1e9 # the amplitude data devide 2 * 10**9 to velocity meter/second
+        sensor_type = 2 * 10**9 # the amplitude data devide 2 * 10**9 to velocity meter/second
     elif seismic_network == "LD":
         response_type = "simulate"
     else:
