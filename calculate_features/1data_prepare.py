@@ -64,7 +64,7 @@ def check_folder(seismic_network, input_year, input_station, input_component):
     os.makedirs(f"{CONFIG_dir['txt_dir']}", exist_ok=True)
 
 
-def denoise(tr, f_min, f_max, x_window_size=20, window_ovelap=0, denoising_processing_method="RMS"):
+def denoise(tr, f_min, f_max, x_window_size=30, window_ovelap=0, denoising_processing_method="IQR"):
     '''
 
     Args:
@@ -149,9 +149,10 @@ def cal_loop(seismic_network, input_year, julday_id, input_station, input_compon
     st = load_seismic_signal(seismic_network, input_station, input_component, data_start, data_end,
                              f_min=1, f_max=45, remove_sensor_response=True)
     st = st[0]
+    st.data = st.data * 1e9 # convert from m/s to nm/s
 
-    f1 = [1, 5,  10, 15, 20, 25, 30] # lower frequency boundary
-    f2 = [5, 10, 15, 20, 25, 30, 35] # upper frequency boundary
+    f1 = [1, 5,  10, 15, 20, 25, 30, 35] # lower frequency boundary
+    f2 = [5, 10, 15, 20, 25, 30, 35, 40] # upper frequency boundary
     for step in np.arange(len(f1)):
         tr = st.copy()
         denoise(tr, f1[step], f2[step])
