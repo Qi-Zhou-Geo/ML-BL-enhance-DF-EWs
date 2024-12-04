@@ -3,7 +3,7 @@
 #SBATCH --job-name=step1           # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-29              # job array id, !!!! all combination of parameters1-3
+#SBATCH --array=1-232             # job array id, !!!! all combination of parameters1-3
 #SBATCH --mem-per-cpu=32G		       # Memory Request (per CPU; can use on GLIC)
 
 #SBATCH --chdir=/home/qizhou/3paper/0seismic_feature/sbatch/XN/logs # set working dir
@@ -17,7 +17,7 @@ conda activate seismic
 
 # Define arrays for parameters1, parameters2, and parameters3
 parameters1=(2016)
-parameters2=("NEP08")
+parameters2=("NEP08" "NEP07" "NEP06" "NEP10" "NEP16" "NEP05" "NEP04" "NEP13") # 8 station from upstream to downstream
 parameters3=($(seq 171 199)) # 29 = 199 - 171 + 1
 
 

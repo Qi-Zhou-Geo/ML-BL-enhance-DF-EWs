@@ -3,7 +3,7 @@
 #SBATCH --job-name=step3           # job name, "Qi_run"
 
 #SBATCH --ntasks=1                 # each individual task in the job array will have a single task associated with it
-#SBATCH --array=1-1                # job array id
+#SBATCH --array=1-8                # job array id
 
 #SBATCH --mem-per-cpu=8G		   # Memory Request (per CPU; can use on GLIC)
 
@@ -17,7 +17,7 @@ conda activate seismic
 
 # Define arrays for parameters1, parameters2, and parameters3
 parameters1=(2016)
-parameters2=("NEP08")
+parameters2=("NEP08" "NEP07" "NEP06" "NEP10" "NEP16" "NEP05" "NEP04" "NEP13") # 8 station from upstream to downstream
 parameters3=("HHZ") # 29 = 199 - 171 + 1
 
 # Calculate the indices for the current combination
