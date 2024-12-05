@@ -7,7 +7,7 @@
 
 #SBATCH --mem-per-cpu=8G		   # Memory Request (per CPU; can use on GLIC)
 
-#SBATCH --chdir=/home/qizhou/3paper/0seismic_feature/sbatch/9S/logs # set working dir
+#SBATCH --chdir=/home/qizhou/3paper/0seismic_feature/sbatch/9S/feature/logs # set working dir
 #SBATCH --output=step3/out_%A_%a_%x.txt  # Standard Output Log File
 #SBATCH --error=step3/err_%A_%a_%x.txt   # Standard Error Log File
 
